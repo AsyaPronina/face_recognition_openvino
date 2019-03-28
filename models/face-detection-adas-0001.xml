@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <net batch="1" name="mobilenet_ssd_672x384" version="4">
 	<layers>
-		<layer id="0" name="data" precision="FP16" type="Input">
+		<layer id="0" name="data" precision="FP32" type="Input">
 			<output>
 				<port id="0">
 					<dim>1</dim>
@@ -11,7 +11,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="1" name="Mul_/Fused_Mul_/FusedScaleShift_" precision="FP16" type="ScaleShift">
+		<layer id="1" name="Mul_/Fused_Mul_/FusedScaleShift_" precision="FP32" type="ScaleShift">
 			<input>
 				<port id="0">
 					<dim>1</dim>
@@ -29,11 +29,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="0" size="6"/>
-				<biases offset="6" size="6"/>
+				<weights offset="0" size="12"/>
+				<biases offset="12" size="12"/>
 			</blobs>
 		</layer>
-		<layer id="2" name="conv1" precision="FP16" type="Convolution">
+		<layer id="2" name="conv1" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="24" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -52,11 +52,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="12" size="1296"/>
-				<biases offset="1308" size="48"/>
+				<weights offset="24" size="2592"/>
+				<biases offset="2616" size="96"/>
 			</blobs>
 		</layer>
-		<layer id="3" name="relu1" precision="FP16" type="ReLU">
+		<layer id="3" name="relu1" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -75,7 +75,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="4" name="conv2_1/dw" precision="FP16" type="Convolution">
+		<layer id="4" name="conv2_1/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="24" kernel="3,3" output="24" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -94,11 +94,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1356" size="432"/>
-				<biases offset="1788" size="48"/>
+				<weights offset="2712" size="864"/>
+				<biases offset="3576" size="96"/>
 			</blobs>
 		</layer>
-		<layer id="5" name="relu2_1/dw" precision="FP16" type="ReLU">
+		<layer id="5" name="relu2_1/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -117,7 +117,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="6" name="conv2_1/sep" precision="FP16" type="Convolution">
+		<layer id="6" name="conv2_1/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="56" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -136,11 +136,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1836" size="2688"/>
-				<biases offset="4524" size="112"/>
+				<weights offset="3672" size="5376"/>
+				<biases offset="9048" size="224"/>
 			</blobs>
 		</layer>
-		<layer id="7" name="relu2_1/sep" precision="FP16" type="ReLU">
+		<layer id="7" name="relu2_1/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -159,7 +159,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="8" name="conv2_2/dw" precision="FP16" type="Convolution">
+		<layer id="8" name="conv2_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="56" kernel="3,3" output="56" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -178,11 +178,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="4636" size="1008"/>
-				<biases offset="5644" size="112"/>
+				<weights offset="9272" size="2016"/>
+				<biases offset="11288" size="224"/>
 			</blobs>
 		</layer>
-		<layer id="9" name="relu2_2/dw" precision="FP16" type="ReLU">
+		<layer id="9" name="relu2_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -201,7 +201,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="10" name="conv2_2/sep" precision="FP16" type="Convolution">
+		<layer id="10" name="conv2_2/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="104" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -220,11 +220,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="5756" size="11648"/>
-				<biases offset="17404" size="208"/>
+				<weights offset="11512" size="23296"/>
+				<biases offset="34808" size="416"/>
 			</blobs>
 		</layer>
-		<layer id="11" name="relu2_2/sep" precision="FP16" type="ReLU">
+		<layer id="11" name="relu2_2/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -243,7 +243,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="12" name="conv3_1/dw" precision="FP16" type="Convolution">
+		<layer id="12" name="conv3_1/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="104" kernel="3,3" output="104" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -262,11 +262,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="17612" size="1872"/>
-				<biases offset="19484" size="208"/>
+				<weights offset="35224" size="3744"/>
+				<biases offset="38968" size="416"/>
 			</blobs>
 		</layer>
-		<layer id="13" name="relu3_1/dw" precision="FP16" type="ReLU">
+		<layer id="13" name="relu3_1/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -285,7 +285,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="14" name="conv3_1/sep" precision="FP16" type="Convolution">
+		<layer id="14" name="conv3_1/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="120" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -304,11 +304,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="19692" size="24960"/>
-				<biases offset="44652" size="240"/>
+				<weights offset="39384" size="49920"/>
+				<biases offset="89304" size="480"/>
 			</blobs>
 		</layer>
-		<layer id="15" name="relu3_1/sep" precision="FP16" type="ReLU">
+		<layer id="15" name="relu3_1/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -327,7 +327,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="16" name="conv3_2/dw" precision="FP16" type="Convolution">
+		<layer id="16" name="conv3_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="120" kernel="3,3" output="120" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -346,11 +346,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="44892" size="2160"/>
-				<biases offset="47052" size="240"/>
+				<weights offset="89784" size="4320"/>
+				<biases offset="94104" size="480"/>
 			</blobs>
 		</layer>
-		<layer id="17" name="relu3_2/dw" precision="FP16" type="ReLU">
+		<layer id="17" name="relu3_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -369,7 +369,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="18" name="conv3_2/sep" precision="FP16" type="Convolution">
+		<layer id="18" name="conv3_2/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="232" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -388,11 +388,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="47292" size="55680"/>
-				<biases offset="102972" size="464"/>
+				<weights offset="94584" size="111360"/>
+				<biases offset="205944" size="928"/>
 			</blobs>
 		</layer>
-		<layer id="19" name="relu3_2/sep" precision="FP16" type="ReLU">
+		<layer id="19" name="relu3_2/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -411,7 +411,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="20" name="conv4_1/dw" precision="FP16" type="Convolution">
+		<layer id="20" name="conv4_1/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="232" kernel="3,3" output="232" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -430,11 +430,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="103436" size="4176"/>
-				<biases offset="107612" size="464"/>
+				<weights offset="206872" size="8352"/>
+				<biases offset="215224" size="928"/>
 			</blobs>
 		</layer>
-		<layer id="21" name="relu4_1/dw" precision="FP16" type="ReLU">
+		<layer id="21" name="relu4_1/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -453,7 +453,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="22" name="conv4_1/sep" precision="FP16" type="Convolution">
+		<layer id="22" name="conv4_1/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="232" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -472,11 +472,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="108076" size="107648"/>
-				<biases offset="215724" size="464"/>
+				<weights offset="216152" size="215296"/>
+				<biases offset="431448" size="928"/>
 			</blobs>
 		</layer>
-		<layer id="23" name="relu4_1/sep" precision="FP16" type="ReLU">
+		<layer id="23" name="relu4_1/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -495,7 +495,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="24" name="conv4_2/dw" precision="FP16" type="Convolution">
+		<layer id="24" name="conv4_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="232" kernel="3,3" output="232" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -514,11 +514,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="216188" size="4176"/>
-				<biases offset="220364" size="464"/>
+				<weights offset="432376" size="8352"/>
+				<biases offset="440728" size="928"/>
 			</blobs>
 		</layer>
-		<layer id="25" name="relu4_2/dw" precision="FP16" type="ReLU">
+		<layer id="25" name="relu4_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -537,7 +537,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="26" name="conv4_2/sep" precision="FP16" type="Convolution">
+		<layer id="26" name="conv4_2/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="360" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -556,11 +556,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="220828" size="167040"/>
-				<biases offset="387868" size="720"/>
+				<weights offset="441656" size="334080"/>
+				<biases offset="775736" size="1440"/>
 			</blobs>
 		</layer>
-		<layer id="27" name="relu4_2/sep" precision="FP16" type="ReLU">
+		<layer id="27" name="relu4_2/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -579,7 +579,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="28" name="conv5_1/dw" precision="FP16" type="Convolution">
+		<layer id="28" name="conv5_1/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="360" kernel="3,3" output="360" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -598,11 +598,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="388588" size="6480"/>
-				<biases offset="395068" size="720"/>
+				<weights offset="777176" size="12960"/>
+				<biases offset="790136" size="1440"/>
 			</blobs>
 		</layer>
-		<layer id="29" name="relu5_1/dw" precision="FP16" type="ReLU">
+		<layer id="29" name="relu5_1/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -621,7 +621,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="30" name="conv5_1/sep" precision="FP16" type="Convolution">
+		<layer id="30" name="conv5_1/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="328" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -640,11 +640,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="395788" size="236160"/>
-				<biases offset="631948" size="656"/>
+				<weights offset="791576" size="472320"/>
+				<biases offset="1263896" size="1312"/>
 			</blobs>
 		</layer>
-		<layer id="31" name="relu5_1/sep" precision="FP16" type="ReLU">
+		<layer id="31" name="relu5_1/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -663,7 +663,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="32" name="conv5_2/dw" precision="FP16" type="Convolution">
+		<layer id="32" name="conv5_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="328" kernel="3,3" output="328" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -682,11 +682,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="632604" size="5904"/>
-				<biases offset="638508" size="656"/>
+				<weights offset="1265208" size="11808"/>
+				<biases offset="1277016" size="1312"/>
 			</blobs>
 		</layer>
-		<layer id="33" name="relu5_2/dw" precision="FP16" type="ReLU">
+		<layer id="33" name="relu5_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -705,7 +705,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="34" name="conv5_2/sep" precision="FP16" type="Convolution">
+		<layer id="34" name="conv5_2/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="304" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -724,11 +724,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="639164" size="199424"/>
-				<biases offset="838588" size="608"/>
+				<weights offset="1278328" size="398848"/>
+				<biases offset="1677176" size="1216"/>
 			</blobs>
 		</layer>
-		<layer id="35" name="relu5_2/sep" precision="FP16" type="ReLU">
+		<layer id="35" name="relu5_2/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -747,7 +747,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="36" name="conv5_3/dw" precision="FP16" type="Convolution">
+		<layer id="36" name="conv5_3/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="304" kernel="3,3" output="304" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -766,11 +766,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="839196" size="5472"/>
-				<biases offset="844668" size="608"/>
+				<weights offset="1678392" size="10944"/>
+				<biases offset="1689336" size="1216"/>
 			</blobs>
 		</layer>
-		<layer id="37" name="relu5_3/dw" precision="FP16" type="ReLU">
+		<layer id="37" name="relu5_3/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -789,7 +789,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="38" name="conv5_3/sep" precision="FP16" type="Convolution">
+		<layer id="38" name="conv5_3/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="248" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -808,11 +808,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="845276" size="150784"/>
-				<biases offset="996060" size="496"/>
+				<weights offset="1690552" size="301568"/>
+				<biases offset="1992120" size="992"/>
 			</blobs>
 		</layer>
-		<layer id="39" name="relu5_3/sep" precision="FP16" type="ReLU">
+		<layer id="39" name="relu5_3/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -831,7 +831,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="40" name="conv5_4/dw" precision="FP16" type="Convolution">
+		<layer id="40" name="conv5_4/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="248" kernel="3,3" output="248" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -850,11 +850,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="996556" size="4464"/>
-				<biases offset="1001020" size="496"/>
+				<weights offset="1993112" size="8928"/>
+				<biases offset="2002040" size="992"/>
 			</blobs>
 		</layer>
-		<layer id="41" name="relu5_4/dw" precision="FP16" type="ReLU">
+		<layer id="41" name="relu5_4/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -873,7 +873,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="42" name="conv5_4/sep" precision="FP16" type="Convolution">
+		<layer id="42" name="conv5_4/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="224" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -892,11 +892,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1001516" size="111104"/>
-				<biases offset="1112620" size="448"/>
+				<weights offset="2003032" size="222208"/>
+				<biases offset="2225240" size="896"/>
 			</blobs>
 		</layer>
-		<layer id="43" name="relu5_4/sep" precision="FP16" type="ReLU">
+		<layer id="43" name="relu5_4/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -915,7 +915,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="44" name="conv5_5/dw" precision="FP16" type="Convolution">
+		<layer id="44" name="conv5_5/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="224" kernel="3,3" output="224" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -934,11 +934,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1113068" size="4032"/>
-				<biases offset="1117100" size="448"/>
+				<weights offset="2226136" size="8064"/>
+				<biases offset="2234200" size="896"/>
 			</blobs>
 		</layer>
-		<layer id="45" name="relu5_5/dw" precision="FP16" type="ReLU">
+		<layer id="45" name="relu5_5/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -957,7 +957,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="46" name="conv5_5/sep" precision="FP16" type="Convolution">
+		<layer id="46" name="conv5_5/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="184" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -976,11 +976,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1117548" size="82432"/>
-				<biases offset="1199980" size="368"/>
+				<weights offset="2235096" size="164864"/>
+				<biases offset="2399960" size="736"/>
 			</blobs>
 		</layer>
-		<layer id="47" name="relu5_5/sep" precision="FP16" type="ReLU">
+		<layer id="47" name="relu5_5/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -999,7 +999,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="48" name="conv4_3_0_norm_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="48" name="conv4_3_0_norm_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1018,11 +1018,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1200348" size="52992"/>
-				<biases offset="1253340" size="32"/>
+				<weights offset="2400696" size="105984"/>
+				<biases offset="2506680" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="49" name="conv4_3_0_norm_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="49" name="conv4_3_0_norm_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -1041,7 +1041,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="50" name="conv4_3_0_norm_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="50" name="conv4_3_0_norm_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -1058,7 +1058,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="51" name="conv4_3_norm_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="51" name="conv4_3_norm_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1077,11 +1077,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1253372" size="52992"/>
-				<biases offset="1306364" size="32"/>
+				<weights offset="2506744" size="105984"/>
+				<biases offset="2612728" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="52" name="conv4_3_norm_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="52" name="conv4_3_norm_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -1100,7 +1100,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="53" name="conv4_3_norm_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="53" name="conv4_3_norm_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -1117,7 +1117,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="54" name="conv5_6/dw" precision="FP16" type="Convolution">
+		<layer id="54" name="conv5_6/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="184" kernel="3,3" output="184" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -1136,11 +1136,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1306396" size="3312"/>
-				<biases offset="1309708" size="368"/>
+				<weights offset="2612792" size="6624"/>
+				<biases offset="2619416" size="736"/>
 			</blobs>
 		</layer>
-		<layer id="55" name="relu5_6/dw" precision="FP16" type="ReLU">
+		<layer id="55" name="relu5_6/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1159,7 +1159,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="56" name="conv5_6/sep" precision="FP16" type="Convolution">
+		<layer id="56" name="conv5_6/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="224" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1178,11 +1178,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1310076" size="82432"/>
-				<biases offset="1392508" size="448"/>
+				<weights offset="2620152" size="164864"/>
+				<biases offset="2785016" size="896"/>
 			</blobs>
 		</layer>
-		<layer id="57" name="relu5_6/sep" precision="FP16" type="ReLU">
+		<layer id="57" name="relu5_6/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1201,7 +1201,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="58" name="conv6/dw" precision="FP16" type="Convolution">
+		<layer id="58" name="conv6/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="224" kernel="3,3" output="224" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1220,11 +1220,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1392956" size="4032"/>
-				<biases offset="1396988" size="448"/>
+				<weights offset="2785912" size="8064"/>
+				<biases offset="2793976" size="896"/>
 			</blobs>
 		</layer>
-		<layer id="59" name="relu6/dw" precision="FP16" type="ReLU">
+		<layer id="59" name="relu6/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1243,7 +1243,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="60" name="conv6/sep" precision="FP16" type="Convolution">
+		<layer id="60" name="conv6/sep" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="128" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1262,11 +1262,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1397436" size="57344"/>
-				<biases offset="1454780" size="256"/>
+				<weights offset="2794872" size="114688"/>
+				<biases offset="2909560" size="512"/>
 			</blobs>
 		</layer>
-		<layer id="61" name="relu6/sep" precision="FP16" type="ReLU">
+		<layer id="61" name="relu6/sep" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1285,7 +1285,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="62" name="fc7_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="62" name="fc7_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="24" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1304,11 +1304,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1455036" size="55296"/>
-				<biases offset="1510332" size="48"/>
+				<weights offset="2910072" size="110592"/>
+				<biases offset="3020664" size="96"/>
 			</blobs>
 		</layer>
-		<layer id="63" name="fc7_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="63" name="fc7_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -1327,7 +1327,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="64" name="fc7_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="64" name="fc7_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -1344,7 +1344,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="65" name="conv6_1" precision="FP16" type="Convolution">
+		<layer id="65" name="conv6_1" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="120" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1363,11 +1363,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1510380" size="30720"/>
-				<biases offset="1541100" size="240"/>
+				<weights offset="3020760" size="61440"/>
+				<biases offset="3082200" size="480"/>
 			</blobs>
 		</layer>
-		<layer id="66" name="relu6_1" precision="FP16" type="ReLU">
+		<layer id="66" name="relu6_1" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1386,7 +1386,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="67" name="conv6_2/dw" precision="FP16" type="Convolution">
+		<layer id="67" name="conv6_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="120" kernel="3,3" output="120" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -1405,11 +1405,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1541340" size="2160"/>
-				<biases offset="1543500" size="240"/>
+				<weights offset="3082680" size="4320"/>
+				<biases offset="3087000" size="480"/>
 			</blobs>
 		</layer>
-		<layer id="68" name="relu6_2/dw" precision="FP16" type="ReLU">
+		<layer id="68" name="relu6_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1428,7 +1428,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="69" name="conv6_2_new" precision="FP16" type="Convolution">
+		<layer id="69" name="conv6_2_new" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="152" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1447,11 +1447,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1543740" size="36480"/>
-				<biases offset="1580220" size="304"/>
+				<weights offset="3087480" size="72960"/>
+				<biases offset="3160440" size="608"/>
 			</blobs>
 		</layer>
-		<layer id="70" name="relu6_2" precision="FP16" type="ReLU">
+		<layer id="70" name="relu6_2" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1470,7 +1470,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="71" name="conv6_2_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="71" name="conv6_2_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="24" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1489,11 +1489,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1580524" size="65664"/>
-				<biases offset="1646188" size="48"/>
+				<weights offset="3161048" size="131328"/>
+				<biases offset="3292376" size="96"/>
 			</blobs>
 		</layer>
-		<layer id="72" name="conv6_2_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="72" name="conv6_2_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -1512,7 +1512,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="73" name="conv6_2_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="73" name="conv6_2_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -1529,7 +1529,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="74" name="conv7_1" precision="FP16" type="Convolution">
+		<layer id="74" name="conv7_1" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="112" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1548,11 +1548,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1646236" size="34048"/>
-				<biases offset="1680284" size="224"/>
+				<weights offset="3292472" size="68096"/>
+				<biases offset="3360568" size="448"/>
 			</blobs>
 		</layer>
-		<layer id="75" name="relu7_1" precision="FP16" type="ReLU">
+		<layer id="75" name="relu7_1" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1571,7 +1571,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="76" name="conv7_2/dw" precision="FP16" type="Convolution">
+		<layer id="76" name="conv7_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="112" kernel="3,3" output="112" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -1590,11 +1590,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1680508" size="2016"/>
-				<biases offset="1682524" size="224"/>
+				<weights offset="3361016" size="4032"/>
+				<biases offset="3365048" size="448"/>
 			</blobs>
 		</layer>
-		<layer id="77" name="relu7_2/dw" precision="FP16" type="ReLU">
+		<layer id="77" name="relu7_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1613,7 +1613,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="78" name="conv7_2_new" precision="FP16" type="Convolution">
+		<layer id="78" name="conv7_2_new" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="168" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1632,11 +1632,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1682748" size="37632"/>
-				<biases offset="1720380" size="336"/>
+				<weights offset="3365496" size="75264"/>
+				<biases offset="3440760" size="672"/>
 			</blobs>
 		</layer>
-		<layer id="79" name="relu7_2" precision="FP16" type="ReLU">
+		<layer id="79" name="relu7_2" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1655,7 +1655,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="80" name="conv7_2_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="80" name="conv7_2_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="24" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1674,11 +1674,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1720716" size="72576"/>
-				<biases offset="1793292" size="48"/>
+				<weights offset="3441432" size="145152"/>
+				<biases offset="3586584" size="96"/>
 			</blobs>
 		</layer>
-		<layer id="81" name="conv7_2_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="81" name="conv7_2_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -1697,7 +1697,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="82" name="conv7_2_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="82" name="conv7_2_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -1714,7 +1714,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="83" name="conv8_1" precision="FP16" type="Convolution">
+		<layer id="83" name="conv8_1" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="120" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1733,11 +1733,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1793340" size="40320"/>
-				<biases offset="1833660" size="240"/>
+				<weights offset="3586680" size="80640"/>
+				<biases offset="3667320" size="480"/>
 			</blobs>
 		</layer>
-		<layer id="84" name="relu8_1" precision="FP16" type="ReLU">
+		<layer id="84" name="relu8_1" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1756,7 +1756,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="85" name="conv8_2/dw" precision="FP16" type="Convolution">
+		<layer id="85" name="conv8_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="120" kernel="3,3" output="120" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -1775,11 +1775,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1833900" size="2160"/>
-				<biases offset="1836060" size="240"/>
+				<weights offset="3667800" size="4320"/>
+				<biases offset="3672120" size="480"/>
 			</blobs>
 		</layer>
-		<layer id="86" name="relu8_2/dw" precision="FP16" type="ReLU">
+		<layer id="86" name="relu8_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1798,7 +1798,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="87" name="conv8_2_new" precision="FP16" type="Convolution">
+		<layer id="87" name="conv8_2_new" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="200" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1817,11 +1817,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1836300" size="48000"/>
-				<biases offset="1884300" size="400"/>
+				<weights offset="3672600" size="96000"/>
+				<biases offset="3768600" size="800"/>
 			</blobs>
 		</layer>
-		<layer id="88" name="relu8_2" precision="FP16" type="ReLU">
+		<layer id="88" name="relu8_2" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1840,7 +1840,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="89" name="conv8_2_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="89" name="conv8_2_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1859,11 +1859,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1884700" size="57600"/>
-				<biases offset="1942300" size="32"/>
+				<weights offset="3769400" size="115200"/>
+				<biases offset="3884600" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="90" name="conv8_2_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="90" name="conv8_2_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -1882,7 +1882,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="91" name="conv8_2_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="91" name="conv8_2_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -1899,7 +1899,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="92" name="conv9_1" precision="FP16" type="Convolution">
+		<layer id="92" name="conv9_1" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="64" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -1918,11 +1918,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1942332" size="25600"/>
-				<biases offset="1967932" size="128"/>
+				<weights offset="3884664" size="51200"/>
+				<biases offset="3935864" size="256"/>
 			</blobs>
 		</layer>
-		<layer id="93" name="relu9_1" precision="FP16" type="ReLU">
+		<layer id="93" name="relu9_1" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1941,7 +1941,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="94" name="conv9_2/dw" precision="FP16" type="Convolution">
+		<layer id="94" name="conv9_2/dw" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="64" kernel="3,3" output="64" pads_begin="1,1" pads_end="1,1" strides="2,2"/>
 			<input>
 				<port id="0">
@@ -1960,11 +1960,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1968060" size="1152"/>
-				<biases offset="1969212" size="128"/>
+				<weights offset="3936120" size="2304"/>
+				<biases offset="3938424" size="256"/>
 			</blobs>
 		</layer>
-		<layer id="95" name="relu9_2/dw" precision="FP16" type="ReLU">
+		<layer id="95" name="relu9_2/dw" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -1983,7 +1983,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="96" name="conv9_2_new" precision="FP16" type="Convolution">
+		<layer id="96" name="conv9_2_new" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="128" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2002,11 +2002,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1969340" size="16384"/>
-				<biases offset="1985724" size="256"/>
+				<weights offset="3938680" size="32768"/>
+				<biases offset="3971448" size="512"/>
 			</blobs>
 		</layer>
-		<layer id="97" name="relu9_2" precision="FP16" type="ReLU">
+		<layer id="97" name="relu9_2" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2025,7 +2025,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="98" name="conv9_2_mbox_loc" precision="FP16" type="Convolution">
+		<layer id="98" name="conv9_2_mbox_loc" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2044,11 +2044,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="1985980" size="36864"/>
-				<biases offset="2022844" size="32"/>
+				<weights offset="3971960" size="73728"/>
+				<biases offset="4045688" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="99" name="conv9_2_mbox_loc_perm" precision="FP16" type="Permute">
+		<layer id="99" name="conv9_2_mbox_loc_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2067,7 +2067,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="100" name="conv9_2_mbox_loc_flat" precision="FP16" type="Flatten">
+		<layer id="100" name="conv9_2_mbox_loc_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2084,7 +2084,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="101" name="mbox_loc" precision="FP16" type="Concat">
+		<layer id="101" name="mbox_loc" precision="FP32" type="Concat">
 			<data axis="1"/>
 			<input>
 				<port id="0">
@@ -2123,7 +2123,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="102" name="conv5_5/sep/reduce" precision="FP16" type="Convolution">
+		<layer id="102" name="conv5_5/sep/reduce" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="16" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2142,11 +2142,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2022876" size="5888"/>
-				<biases offset="2028764" size="32"/>
+				<weights offset="4045752" size="11776"/>
+				<biases offset="4057528" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="103" name="conv5_5/sep/reduced/relu" precision="FP16" type="ReLU">
+		<layer id="103" name="conv5_5/sep/reduced/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2165,7 +2165,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="104" name="pre_conv4_3_0_norm_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="104" name="pre_conv4_3_0_norm_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2184,11 +2184,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2028796" size="4608"/>
-				<biases offset="2033404" size="32"/>
+				<weights offset="4057592" size="9216"/>
+				<biases offset="4066808" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="105" name="pre_conv4_3_0_norm_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="105" name="pre_conv4_3_0_norm_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2207,7 +2207,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="106" name="conv4_3_0_norm_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="106" name="conv4_3_0_norm_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="8" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2226,11 +2226,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2033436" size="2304"/>
-				<biases offset="2035740" size="16"/>
+				<weights offset="4066872" size="4608"/>
+				<biases offset="4071480" size="32"/>
 			</blobs>
 		</layer>
-		<layer id="107" name="conv4_3_0_norm_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="107" name="conv4_3_0_norm_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2249,7 +2249,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="108" name="conv4_3_0_norm_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="108" name="conv4_3_0_norm_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2266,7 +2266,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="109" name="pre_conv4_3_norm_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="109" name="pre_conv4_3_norm_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2285,11 +2285,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2035756" size="4608"/>
-				<biases offset="2040364" size="32"/>
+				<weights offset="4071512" size="9216"/>
+				<biases offset="4080728" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="110" name="pre_conv4_3_norm_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="110" name="pre_conv4_3_norm_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2308,7 +2308,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="111" name="conv4_3_norm_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="111" name="conv4_3_norm_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="8" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2327,11 +2327,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2040396" size="2304"/>
-				<biases offset="2042700" size="16"/>
+				<weights offset="4080792" size="4608"/>
+				<biases offset="4085400" size="32"/>
 			</blobs>
 		</layer>
-		<layer id="112" name="conv4_3_norm_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="112" name="conv4_3_norm_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2350,7 +2350,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="113" name="conv4_3_norm_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="113" name="conv4_3_norm_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2367,7 +2367,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="114" name="conv6/sep/reduce" precision="FP16" type="Convolution">
+		<layer id="114" name="conv6/sep/reduce" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="16" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2386,11 +2386,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2042716" size="4096"/>
-				<biases offset="2046812" size="32"/>
+				<weights offset="4085432" size="8192"/>
+				<biases offset="4093624" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="115" name="conv6/sep/reduced/relu" precision="FP16" type="ReLU">
+		<layer id="115" name="conv6/sep/reduced/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2409,7 +2409,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="116" name="pre_fc7_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="116" name="pre_fc7_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2428,11 +2428,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2046844" size="4608"/>
-				<biases offset="2051452" size="32"/>
+				<weights offset="4093688" size="9216"/>
+				<biases offset="4102904" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="117" name="pre_fc7_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="117" name="pre_fc7_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2451,7 +2451,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="118" name="fc7_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="118" name="fc7_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="12" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2470,11 +2470,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2051484" size="3456"/>
-				<biases offset="2054940" size="24"/>
+				<weights offset="4102968" size="6912"/>
+				<biases offset="4109880" size="48"/>
 			</blobs>
 		</layer>
-		<layer id="119" name="fc7_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="119" name="fc7_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2493,7 +2493,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="120" name="fc7_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="120" name="fc7_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2510,7 +2510,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="121" name="conv6_2/reduce" precision="FP16" type="Convolution">
+		<layer id="121" name="conv6_2/reduce" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="16" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2529,11 +2529,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2054964" size="4864"/>
-				<biases offset="2059828" size="32"/>
+				<weights offset="4109928" size="9728"/>
+				<biases offset="4119656" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="122" name="conv6_2/reduced/relu" precision="FP16" type="ReLU">
+		<layer id="122" name="conv6_2/reduced/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2552,7 +2552,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="123" name="pre_conv6_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="123" name="pre_conv6_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2571,11 +2571,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2059860" size="4608"/>
-				<biases offset="2064468" size="32"/>
+				<weights offset="4119720" size="9216"/>
+				<biases offset="4128936" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="124" name="pre_conv6_2_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="124" name="pre_conv6_2_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2594,7 +2594,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="125" name="conv6_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="125" name="conv6_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="12" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2613,11 +2613,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2064500" size="3456"/>
-				<biases offset="2067956" size="24"/>
+				<weights offset="4129000" size="6912"/>
+				<biases offset="4135912" size="48"/>
 			</blobs>
 		</layer>
-		<layer id="126" name="conv6_2_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="126" name="conv6_2_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2636,7 +2636,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="127" name="conv6_2_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="127" name="conv6_2_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2653,7 +2653,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="128" name="conv7_2/reduce" precision="FP16" type="Convolution">
+		<layer id="128" name="conv7_2/reduce" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="16" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2672,11 +2672,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2067980" size="5376"/>
-				<biases offset="2073356" size="32"/>
+				<weights offset="4135960" size="10752"/>
+				<biases offset="4146712" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="129" name="conv7_2_reduced/relu" precision="FP16" type="ReLU">
+		<layer id="129" name="conv7_2_reduced/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2695,7 +2695,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="130" name="pre_conv7_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="130" name="pre_conv7_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2714,11 +2714,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2073388" size="4608"/>
-				<biases offset="2077996" size="32"/>
+				<weights offset="4146776" size="9216"/>
+				<biases offset="4155992" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="131" name="pre_conv7_2_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="131" name="pre_conv7_2_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2737,7 +2737,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="132" name="conv7_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="132" name="conv7_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="12" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2756,11 +2756,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2078028" size="3456"/>
-				<biases offset="2081484" size="24"/>
+				<weights offset="4156056" size="6912"/>
+				<biases offset="4162968" size="48"/>
 			</blobs>
 		</layer>
-		<layer id="133" name="conv7_2_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="133" name="conv7_2_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2779,7 +2779,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="134" name="conv7_2_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="134" name="conv7_2_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2796,7 +2796,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="135" name="conv8_2/reduce" precision="FP16" type="Convolution">
+		<layer id="135" name="conv8_2/reduce" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="16" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2815,11 +2815,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2081508" size="6400"/>
-				<biases offset="2087908" size="32"/>
+				<weights offset="4163016" size="12800"/>
+				<biases offset="4175816" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="136" name="conv8_2_reduced/relu" precision="FP16" type="ReLU">
+		<layer id="136" name="conv8_2_reduced/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2838,7 +2838,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="137" name="pre_conv8_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="137" name="pre_conv8_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2857,11 +2857,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2087940" size="4608"/>
-				<biases offset="2092548" size="32"/>
+				<weights offset="4175880" size="9216"/>
+				<biases offset="4185096" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="138" name="pre_conv8_2_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="138" name="pre_conv8_2_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2880,7 +2880,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="139" name="conv8_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="139" name="conv8_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="8" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2899,11 +2899,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2092580" size="2304"/>
-				<biases offset="2094884" size="16"/>
+				<weights offset="4185160" size="4608"/>
+				<biases offset="4189768" size="32"/>
 			</blobs>
 		</layer>
-		<layer id="140" name="conv8_2_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="140" name="conv8_2_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -2922,7 +2922,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="141" name="conv8_2_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="141" name="conv8_2_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -2939,7 +2939,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="142" name="conv9_2/reduce" precision="FP16" type="Convolution">
+		<layer id="142" name="conv9_2/reduce" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="1,1" output="16" pads_begin="0,0" pads_end="0,0" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -2958,11 +2958,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2094900" size="4096"/>
-				<biases offset="2098996" size="32"/>
+				<weights offset="4189800" size="8192"/>
+				<biases offset="4197992" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="143" name="conv9_2_reduced/relu" precision="FP16" type="ReLU">
+		<layer id="143" name="conv9_2_reduced/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -2981,7 +2981,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="144" name="pre_conv9_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="144" name="pre_conv9_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="16" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -3000,11 +3000,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2099028" size="4608"/>
-				<biases offset="2103636" size="32"/>
+				<weights offset="4198056" size="9216"/>
+				<biases offset="4207272" size="64"/>
 			</blobs>
 		</layer>
-		<layer id="145" name="pre_conv9_2_mbox_conf/relu" precision="FP16" type="ReLU">
+		<layer id="145" name="pre_conv9_2_mbox_conf/relu" precision="FP32" type="ReLU">
 			<data negative_slope="0.0"/>
 			<input>
 				<port id="0">
@@ -3023,7 +3023,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="146" name="conv9_2_mbox_conf_64" precision="FP16" type="Convolution">
+		<layer id="146" name="conv9_2_mbox_conf_64" precision="FP32" type="Convolution">
 			<data dilations="1,1" group="1" kernel="3,3" output="8" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
 			<input>
 				<port id="0">
@@ -3042,11 +3042,11 @@
 				</port>
 			</output>
 			<blobs>
-				<weights offset="2103668" size="2304"/>
-				<biases offset="2105972" size="16"/>
+				<weights offset="4207336" size="4608"/>
+				<biases offset="4211944" size="32"/>
 			</blobs>
 		</layer>
-		<layer id="147" name="conv9_2_mbox_conf_perm" precision="FP16" type="Permute">
+		<layer id="147" name="conv9_2_mbox_conf_perm" precision="FP32" type="Permute">
 			<data order="0,2,3,1"/>
 			<input>
 				<port id="0">
@@ -3065,7 +3065,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="148" name="conv9_2_mbox_conf_flat" precision="FP16" type="Flatten">
+		<layer id="148" name="conv9_2_mbox_conf_flat" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -3082,7 +3082,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="149" name="mbox_conf_16" precision="FP16" type="Concat">
+		<layer id="149" name="mbox_conf_16" precision="FP32" type="Concat">
 			<data axis="1"/>
 			<input>
 				<port id="0">
@@ -3121,7 +3121,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="150" name="mbox_conf_reshape" precision="FP16" type="Reshape">
+		<layer id="150" name="mbox_conf_reshape" precision="FP32" type="Reshape">
 			<data axis="0" dim="0,-1,2" num_axes="-1"/>
 			<input>
 				<port id="0">
@@ -3137,7 +3137,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="151" name="mbox_conf_softmax" precision="FP16" type="SoftMax">
+		<layer id="151" name="mbox_conf_softmax" precision="FP32" type="SoftMax">
 			<data axis="2"/>
 			<input>
 				<port id="0">
@@ -3154,7 +3154,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="152" name="mbox_conf_flatten" precision="FP16" type="Flatten">
+		<layer id="152" name="mbox_conf_flatten" precision="FP32" type="Flatten">
 			<data axis="1" end_axis="-1"/>
 			<input>
 				<port id="0">
@@ -3170,7 +3170,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="153" name="conv4_3_0_norm_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="153" name="conv4_3_0_norm_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0" clip="0" flip="1" max_size="38.400001525878906" min_size="16.0" offset="0.5" step="16.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3194,7 +3194,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="154" name="conv4_3_norm_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="154" name="conv4_3_norm_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0" clip="0" flip="1" max_size="76.80000305175781" min_size="38.400001525878906" offset="0.5" step="16.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3218,7 +3218,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="155" name="fc7_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="155" name="fc7_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0,3.0" clip="0" flip="1" max_size="142.0800018310547" min_size="76.80000305175781" offset="0.5" step="32.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3242,7 +3242,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="156" name="conv6_2_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="156" name="conv6_2_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0,3.0" clip="0" flip="1" max_size="207.36000061035156" min_size="142.0800018310547" offset="0.5" step="64.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3266,7 +3266,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="157" name="conv7_2_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="157" name="conv7_2_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0,3.0" clip="0" flip="1" max_size="272.6400146484375" min_size="207.36000061035156" offset="0.5" step="100.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3290,7 +3290,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="158" name="conv8_2_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="158" name="conv8_2_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0" clip="0" flip="1" max_size="337.9200134277344" min_size="272.6400146484375" offset="0.5" step="150.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3314,7 +3314,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="159" name="conv9_2_mbox_priorbox" precision="FP16" type="PriorBox">
+		<layer id="159" name="conv9_2_mbox_priorbox" precision="FP32" type="PriorBox">
 			<data aspect_ratio="2.0" clip="0" flip="1" max_size="403.20001220703125" min_size="337.9200134277344" offset="0.5" step="300.0" variance="0.10000000149011612,0.10000000149011612,0.20000000298023224,0.20000000298023224"/>
 			<input>
 				<port id="0">
@@ -3338,7 +3338,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="160" name="mbox_priorbox" precision="FP16" type="Concat">
+		<layer id="160" name="mbox_priorbox" precision="FP32" type="Concat">
 			<data axis="2"/>
 			<input>
 				<port id="0">
@@ -3385,7 +3385,7 @@
 				</port>
 			</output>
 		</layer>
-		<layer id="161" name="detection_out" precision="FP16" type="DetectionOutput">
+		<layer id="161" name="detection_out" precision="FP32" type="DetectionOutput">
 			<data background_label_id="0" code_type="caffe.PriorBoxParameter.CENTER_SIZE" confidence_threshold="0.009999999776482582" eta="1.0" input_height="1" input_width="1" keep_top_k="200" nms_threshold="0.44999998807907104" normalized="1" num_classes="2" share_location="1" top_k="400" variance_encoded_in_target="0" visualize="False"/>
 			<input>
 				<port id="0">
@@ -3605,7 +3605,7 @@
 	<meta_data>
 		<MO_version value="1.5.4.dacdc0a0"/>
 		<cli_parameters>
-			<data_type value="FP16"/>
+			<data_type value="FP32"/>
 			<disable_fusing value="False"/>
 			<disable_gfusing value="False"/>
 			<disable_nhwc_to_nchw value="False"/>

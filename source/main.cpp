@@ -31,23 +31,19 @@
 #include <ie_iextension.h>
 #include <ext_list.hpp>
 
-DEFINE_string(m, "/home/asya/Study/DL/face_recognition/models/face-detection-adas-0001.xml", face_detection_model_message);
-DEFINE_string(m_lm, "", facial_landmarks_model_message);
-DEFINE_string(d, "CPU", target_device_message);
-DEFINE_string(d_lm, "CPU", target_device_message_lm);
-DEFINE_uint32(n_lm, 16, num_batch_em_message);
-DEFINE_bool(dyn_lm, false, dyn_batch_em_message);
-/// @brief Define parameter for GPU custom kernels path<br>
-/// Default is ./lib
-DEFINE_string(c, "", custom_cldnn_message);
+DEFINE_string(m, "/home/asyadev/Study/DL/face_recognition_openvino/models/face-detection-adas-0001.xml", "face detection model");
+DEFINE_string(m_lm, "", "facial landmarks model");
+DEFINE_string(d, "CPU", "target device for face detection");
+DEFINE_string(d_lm, "CPU", "target device for facial landmarks");
+DEFINE_uint32(n_lm, 16, "num batch lm");
+DEFINE_bool(dyn_lm, false, "dyn batch lm");
 /// \brief Define a flag to output raw scoring results<br>
 /// It is an optional parameter
-DEFINE_bool(r, false, raw_output_message);
+DEFINE_bool(r, false, "raw output");
 /// \brief Define a parameter for probability threshold for detections<br>
 /// It is an optional parameter
-DEFINE_double(t, 0.5, thresh_output_message);
-DEFINE_bool(no_wait, false, no_wait_for_keypress_message);
-DEFINE_bool(async, false, async_message);
+DEFINE_bool(no_wait, false, "now wait for keypress");
+DEFINE_bool(async, false, "async");
 
 
 using namespace InferenceEngine;
@@ -73,14 +69,10 @@ int main(int argc, char *argv[]) {
             std::vector<std::pair<std::string, std::string>> cmdOptions = {
                 {FLAGS_d, FLAGS_m}, {FLAGS_d_lm, FLAGS_m_lm}
             };
-            FaceDetection faceDetector(FLAGS_m, FLAGS_d, 1, false, FLAGS_async, FLAGS_t, FLAGS_r);
+            FaceDetection faceDetector(FLAGS_m, FLAGS_d, 1, false, FLAGS_async, 0.5, FLAGS_r);
             FacialLandmarksDetection facialLandmarksDetector(FLAGS_m_lm, FLAGS_d_lm, FLAGS_n_lm, FLAGS_dyn_lm, FLAGS_async);
 
             std::string deviceName = "CPU";
-            if (pluginsForDevices.find(deviceName) != pluginsForDevices.end()) {
-                    continue;
-            }
-            
             InferencePlugin plugin = PluginDispatcher({"../../../lib/intel64", ""}).getPluginByDevice(deviceName);
 
             /** Loading extensions for the CPU plugin **/
@@ -88,7 +80,7 @@ int main(int argc, char *argv[]) {
                     plugin.AddExtension(std::make_shared<Extensions::Cpu::CpuExtensions>());
 
                }
-               pluginsForDevices[deviceName] = plugin;
+            pluginsForDevices[deviceName] = plugin;
 
             // ---------------------------------------------------------------------------------------------------
     
@@ -266,7 +258,7 @@ int main(int argc, char *argv[]) {
                         cv::waitKey(0);
                     }
                     break;
-                } else if (!FLAGS_no_show && -1 != cv::waitKey(1)) {
+                } else if (-1 != cv::waitKey(1)) {
                     timer.finish("total");
                     break;
                 }
