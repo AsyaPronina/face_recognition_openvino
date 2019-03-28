@@ -32,7 +32,7 @@
 #include <ext_list.hpp>
 
 DEFINE_string(m, "/home/asyadev/Study/DL/face_recognition_openvino/models/face-detection-adas-0001.xml", "face detection model");
-DEFINE_string(m_lm, "", "facial landmarks model");
+DEFINE_string(m_lm, "/home/asyadev/Study/DL/face_recognition_openvino/models/facial-landmarks-35-adas-0001.xml", "facial landmarks model");
 DEFINE_string(d, "CPU", "target device for face detection");
 DEFINE_string(d_lm, "CPU", "target device for facial landmarks");
 DEFINE_uint32(n_lm, 16, "num batch lm");
@@ -189,12 +189,12 @@ int main(int argc, char *argv[]) {
                         out.str("");
                         out << "Facial Landmarks Detector Networks "
                             << "time: " << std::fixed << std::setprecision(2)
-                            << timer["facial landmarks detector call"].getSmoothedDuration() +
-                               timer["face landmarks detector wait"].getSmoothedDuration()
+                            << timer["facial landmarks detector"].getSmoothedDuration() +
+                               timer["facial landmarks detector wait"].getSmoothedDuration()
                             << " ms ";
                         if (!prev_detection_results.empty()) {
                             out << "("
-                                << 1000.f / (timer["facial landmarks detector call"].getSmoothedDuration() +
+                                << 1000.f / (timer["facial landmarks detector"].getSmoothedDuration() +
                                    timer["facial landmarks detector wait"].getSmoothedDuration())
                                 << " fps)";
                         }
