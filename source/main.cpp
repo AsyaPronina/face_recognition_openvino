@@ -26,15 +26,21 @@
 #include <samples/ocv_common.hpp>
 #include <samples/slog.hpp>
 
-#include "detectors.hpp"
-
 #include <ie_iextension.h>
 #include <ext_list.hpp>
 
-DEFINE_string(m, "/home/asyadev/Study/DL/face_recognition_openvino/models/face-detection-adas-0001.xml", "face detection model");
-DEFINE_string(m_lm, "/home/asyadev/Study/DL/face_recognition_openvino/models/facial-landmarks-35-adas-0001.xml", "facial landmarks model");
+#include"utility.hpp"
+#include "detectors.hpp"
+#include "alignment.hpp"
+#include "feature_extractor.hpp"
+#include "classifier.hpp"
+
+DEFINE_string(m, "/home/asyadev/Study/DL/face_recognition_openvino_prototype/models/face-detection-adas-0001.xml", "face detection model");
+DEFINE_string(m_lm, "/home/asyadev/Study/DL/face_recognition_openvino_prototype/models/facial-landmarks-35-adas-0001.xml", "facial landmarks model");
+DEFINE_string(m_fe, "/home/asyadev/Study/DL/face_recognition_openvino_prototype/models/Sphereface.xml", "feature extractor");
 DEFINE_string(d, "CPU", "target device for face detection");
 DEFINE_string(d_lm, "CPU", "target device for facial landmarks");
+DEFINE_string(d_fe, "CPU","target device for feature extractor");
 DEFINE_uint32(n_lm, 16, "num batch lm");
 DEFINE_bool(dyn_lm, false, "dyn batch lm");
 /// \brief Define a flag to output raw scoring results<br>
@@ -48,21 +54,33 @@ DEFINE_bool(async, false, "async");
 
 using namespace InferenceEngine;
 
+std::string retrievePath(int argc, char *argv[]) {
+    // ---------------------------Parsing and validating input arguments--------------------------------------
+    if (argc == 2)
+    {
+        return argv[1];
+    }
+
+    return "";
+}
+
+
+
 int main(int argc, char *argv[]) {
     try {
-            cv::VideoCapture cap;
-            if (!cap.open(0)) {
-                throw std::logic_error("Cannot open camera: ");
+            std::string path = retrievePath(argc, argv);
+            if (path == "") {
+                throw std::logic_error("Command line option with the path to the image is required.");
             }
-            const size_t width  = (size_t) cap.get(cv::CAP_PROP_FRAME_WIDTH);
-            const size_t height = (size_t) cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+            cv::Mat image = cv::imread(path);
+            if (image.empty()) {
+                throw std::logic_error("Incorrect path to the input image!");
+            }
 
-            // read input (video) frame
-            cv::Mat frame;
-            if (!cap.read(frame)) {
-                throw std::logic_error("Failed to get frame from cv::VideoCapture");
-            }
-            
+            auto size = image.size();
+            const size_t width = size.width;
+            const size_t height = size.height;
+          
             // ---------------------------------------------------------------------------------------------------
             // --------------------------- 1. Loading plugin to the Inference Engine -----------------------------
             std::map<std::string, InferencePlugin> pluginsForDevices;
@@ -71,6 +89,8 @@ int main(int argc, char *argv[]) {
             };
             FaceDetection faceDetector(FLAGS_m, FLAGS_d, 1, false, FLAGS_async, 0.5, FLAGS_r);
             FacialLandmarksDetection facialLandmarksDetector(FLAGS_m_lm, FLAGS_d_lm, FLAGS_n_lm, FLAGS_dyn_lm, FLAGS_async);
+            FeatureExtraction featureExtractor(FLAGS_m_fe, FLAGS_d_fe, 1, false, FLAGS_async);
+            Classifier classifier;
 
             std::string deviceName = "CPU";
             InferencePlugin plugin = PluginDispatcher({"../../../lib/intel64", ""}).getPluginByDevice(deviceName);
@@ -86,8 +106,10 @@ int main(int argc, char *argv[]) {
     
             // --------------------------- 2. Reading IR models and loading them to plugins ----------------------
             // Disable dynamic batching for face detector as it processes one image at a time
-            Load(faceDetector).into(pluginsForDevices[FLAGS_d], false);
-            Load(facialLandmarksDetector).into(pluginsForDevices[FLAGS_d_lm], FLAGS_dyn_lm);
+            // Disable dynamic batching for feature extractor for prototype
+            Load<decltype(faceDetector)>(faceDetector).into(pluginsForDevices[FLAGS_d], false);
+            Load<decltype(facialLandmarksDetector)>(facialLandmarksDetector).into(pluginsForDevices[FLAGS_d_lm], FLAGS_dyn_lm);
+            Load<decltype(featureExtractor)>(featureExtractor).into(pluginsForDevices[FLAGS_d_fe], false);
             // ----------------------------------------------------------------------------------------------------
     
             // --------------------------- 3. Doing inference -----------------------------------------------------
@@ -99,47 +121,25 @@ int main(int argc, char *argv[]) {
             timer.start("total");
     
             std::ostringstream out;
-            size_t framesCounter = 0;
-            bool frameReadStatus;
-            bool isLastFrame;
-            cv::Mat prev_frame, next_frame;
     
-            // Detecting all faces on the first frame and reading the next one
-            timer.start("detection");
-            faceDetector.enqueue(frame);
-            faceDetector.submitRequest();
-            timer.finish("detection");
-    
-            prev_frame = frame.clone();
-    
-            // Reading the next frame
-            timer.start("video frame decoding");
-            frameReadStatus = cap.read(frame);
-            timer.finish("video frame decoding");
-    
-            while (true) {
-                framesCounter++;
-                isLastFrame = !frameReadStatus;
-    
+            {
+                // Detecting all faces on the first frame and reading the next one
                 timer.start("detection");
-                // Retrieving face detection results for the previous frame
+                faceDetector.enqueue(image);
+                faceDetector.submitRequest();
                 faceDetector.wait();
                 faceDetector.fetchResults();
-                auto prev_detection_results = faceDetector.results;
-    
-                // No valid frame to infer if previous frame is the last
-                if (!isLastFrame) {
-                    faceDetector.enqueue(frame);
-                    faceDetector.submitRequest();
-                }
+                auto detectionResults = faceDetector.results;
                 timer.finish("detection");
     
+                std::vector<cv::Mat> detectedFaces;
                 timer.start("data postprocessing");
                 // Filling inputs of face analytics networks
-                for (auto &&face : prev_detection_results) {
+                for (auto &&face : detectionResults) {
                     if (isFaceAnalyticsEnabled) {
                         auto clippedRect = face.location & cv::Rect(0, 0, width, height);
-                        cv::Mat face = prev_frame(clippedRect);
+                        cv::Mat face = image(clippedRect);
+                        detectedFaces.push_back(face);
                         facialLandmarksDetector.enqueue(face);
                     }
                 }
@@ -149,31 +149,64 @@ int main(int argc, char *argv[]) {
                 timer.start("facial landmarks detector");
                 if (isFaceAnalyticsEnabled) {
                     facialLandmarksDetector.submitRequest();
-                }
-                timer.finish("facial landmarks detector");
-    
-                // Reading the next frame if the current one is not the last
-                if (!isLastFrame) {
-                    timer.start("video frame decoding");
-                    frameReadStatus = cap.read(next_frame);
-                    timer.finish("video frame decoding");
-                }
-    
-                timer.start("facial landmarks detector wait");
-                if (isFaceAnalyticsEnabled) {
                     facialLandmarksDetector.wait();
                 }
-                timer.finish("facial landmarks detector wait");
-    
+                timer.finish("facial landmarks detector");
+   
+                timer.start("face preprocessing");
+                std::vector<cv::Mat> alignedFaces;
+                if (isFaceAnalyticsEnabled) {
+                    int i = 0;
+                    for (auto &result : detectionResults) {
+                        cv::Rect rect = result.location;
+                        auto normedLandmarks = facialLandmarksDetector[i];
+                        auto leftEye = { cv::Point2f { normedLandmarks[0], normedLandmarks[1] },
+                                          cv::Point2f { normedLandmarks[2], normedLandmarks[3] } };
+                        auto rightEye = { cv::Point2f { normedLandmarks[4], normedLandmarks[5] },
+                                           cv::Point2f { normedLandmarks[6], normedLandmarks[7] } };
+                        cv::Mat alignedFace = alignFace(detectedFaces[i], leftEye, rightEye);
+                        alignedFaces.push_back(alignedFace);
+                        
+                        if (!alignedFace.empty()) {
+                            featureExtractor.enqueue(alignedFace);
+                        }
+
+                        ++i;
+                    }
+                }
+                timer.finish("face preprocessing");
+
+                timer.start("feature extractor");
+                std::vector<std::vector<float>> featureVectors;
+                
+                if (isFaceAnalyticsEnabled) {
+                    featureExtractor.submitRequest();
+                    featureExtractor.wait();
+                    featureExtractor.fetchResults();
+
+                    auto resultsSize = detectionResults.size();
+                    for (int i = 0; i < resultsSize; ++i) {
+                        featureVectors.push_back(featureExtractor.results);
+                    }
+                }
+                timer.finish("feature extractor");
+
+                timer.start("classifier");
+
+                std::vector<std::string> persons;
+                for (auto featureVector : featureVectors) {
+                    auto label = classifier.classify(featureVector);
+                    persons.push_back(label);
+                }
+                timer.finish("classifier");
                 // Visualizing results
                 {
                     timer.start("visualization");
                     out.str("");
-                    out << "OpenCV cap/render time: " << std::fixed << std::setprecision(2)
-                        << (timer["video frame decoding"].getSmoothedDuration() +
-                           timer["visualization"].getSmoothedDuration())
+                    out << "OpenCV render time: " << std::fixed << std::setprecision(2)
+                        <<  timer["visualization"].getSmoothedDuration()
                         << " ms";
-                    cv::putText(prev_frame, out.str(), cv::Point2f(0, 25), cv::FONT_HERSHEY_TRIPLEX, 0.5,
+                    cv::putText(image, out.str(), cv::Point2f(0, 25), cv::FONT_HERSHEY_TRIPLEX, 0.5,
                                 cv::Scalar(255, 0, 0));
     
                     out.str("");
@@ -182,95 +215,64 @@ int main(int argc, char *argv[]) {
                         << " ms ("
                         << 1000.f / (timer["detection"].getSmoothedDuration())
                         << " fps)";
-                    cv::putText(prev_frame, out.str(), cv::Point2f(0, 45), cv::FONT_HERSHEY_TRIPLEX, 0.5,
+                    cv::putText(image, out.str(), cv::Point2f(0, 45), cv::FONT_HERSHEY_TRIPLEX, 0.5,
                                 cv::Scalar(255, 0, 0));
     
                     if (isFaceAnalyticsEnabled) {
                         out.str("");
                         out << "Facial Landmarks Detector Networks "
                             << "time: " << std::fixed << std::setprecision(2)
-                            << timer["facial landmarks detector"].getSmoothedDuration() +
-                               timer["facial landmarks detector wait"].getSmoothedDuration()
+                            << timer["facial landmarks detector"].getSmoothedDuration()
                             << " ms ";
-                        if (!prev_detection_results.empty()) {
+                        if (!detectionResults.empty()) {
                             out << "("
-                                << 1000.f / (timer["facial landmarks detector"].getSmoothedDuration() +
-                                   timer["facial landmarks detector wait"].getSmoothedDuration())
+                                << 1000.f / timer["facial landmarks detector"].getSmoothedDuration()
                                 << " fps)";
                         }
-                        cv::putText(prev_frame, out.str(), cv::Point2f(0, 65), cv::FONT_HERSHEY_TRIPLEX, 0.5,
+                        cv::putText(image, out.str(), cv::Point2f(0, 65), cv::FONT_HERSHEY_TRIPLEX, 0.5,
+                                    cv::Scalar(255, 0, 0));
+
+                        out.str("");
+                        out << "Face preprocessing before feature extraction "
+                            << "time: " << std::fixed << std::setprecision(2)
+                            << timer["face preprocessing"].getSmoothedDuration() +
+                               timer["face preprocessing"].getSmoothedDuration()
+                            << " ms ";
+                        cv::putText(image, out.str(), cv::Point2f(0, 85), cv::FONT_HERSHEY_TRIPLEX, 0.5,
                                     cv::Scalar(255, 0, 0));
                     }
     
                     // For every detected face
                     int i = 0;
-                    for (auto &result : prev_detection_results) {
+                    for (auto &result : detectionResults) {
                         cv::Rect rect = result.location;
     
                         out.str("");
     
                         
-                        out << (result.label < faceDetector.labels.size() ? faceDetector.labels[result.label] :
-                                std::string("label #") + std::to_string(result.label))
+                        out << persons[i]
                             << ": " << std::fixed << std::setprecision(3) << result.confidence;
     
     
-                        cv::putText(prev_frame,
+                        cv::putText(image,
                                     out.str(),
                                     cv::Point2f(result.location.x, result.location.y - 15),
                                     cv::FONT_HERSHEY_COMPLEX_SMALL,
                                     0.8,
                                     cv::Scalar(0, 0, 255));
     
-                        if (facialLandmarksDetector.enabled() && i < facialLandmarksDetector.maxBatch) {
-                            auto normed_landmarks = facialLandmarksDetector[i];
-                            auto n_lm = normed_landmarks.size();
-                            if (FLAGS_r)
-                                std::cout << "Normed Facial Landmarks coordinates (x, y):" << std::endl;
-                            for (auto i_lm = 0UL; i_lm < n_lm / 2; ++i_lm) {
-                                float normed_x = normed_landmarks[2 * i_lm];
-                                float normed_y = normed_landmarks[2 * i_lm + 1];
-    
-                                if (FLAGS_r) {
-                                    std::cout << normed_x << ", "
-                                              << normed_y << std::endl;
-                                }
-                                int x_lm = rect.x + rect.width * normed_x;
-                                int y_lm = rect.y + rect.height * normed_y;
-                                // Drawing facial landmarks on the frame
-                                cv::circle(prev_frame, cv::Point(x_lm, y_lm), 1 + static_cast<int>(0.012 * rect.width), cv::Scalar(0, 255, 255), -1);
-                            }
-                        }
-    
-                        cv::rectangle(prev_frame, result.location, cv::Scalar(100, 100, 100), 1);
+                        cv::imshow(std::string("face preprocessing #") + std::to_string(i), alignedFaces[i]);
+                        cv::rectangle(image, result.location, cv::Scalar(100, 100, 100), 1);
                         i++;
                     }
     
-                    cv::imshow("Detection results", prev_frame);
+                    cv::imshow("Detection results", image);
                     timer.finish("visualization");
                 }
     
-                // End of file (or a single frame file like an image). The last frame is displayed to let you check what is shown
-                if (isLastFrame) {
-                    timer.finish("total");
-                    if (!FLAGS_no_wait) {
-                        std::cout << "No more frames to process. Press any key to exit" << std::endl;
-                        cv::waitKey(0);
-                    }
-                    break;
-                } else if (-1 != cv::waitKey(1)) {
-                    timer.finish("total");
-                    break;
-                }
-    
-                prev_frame = frame;
-                frame = next_frame;
-                next_frame = cv::Mat();
-            }
-    
-            slog::info << "Number of processed frames: " << framesCounter << slog::endl;
-            slog::info << "Total image throughput: " << framesCounter * (1000.f / timer["total"].getTotalDuration()) << " fps" << slog::endl;
-
+                cv::waitKey(0);
+                timer.finish("total");
+        }
     }
     catch (const std::exception& error) {
         slog::err << error.what() << slog::endl;
