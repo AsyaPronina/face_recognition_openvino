@@ -3,6 +3,7 @@
 #include "classifier.hpp"
 #include "tmp_database.hpp"
 
+//Fin angle, think about threshold.
 std::string  Classifier::classify(std::vector<float> featureVector) {
     std::map<std::string, float> minimums;
     for (auto it = classifiedFaces.begin(); it != classifiedFaces.end(); ++it) {
@@ -16,19 +17,22 @@ std::string  Classifier::classify(std::vector<float> featureVector) {
 //               // throw std::logic_error("Classified feature vector size does not equal to input feature vector size!");
 //            }
 
-            std::vector<float> diffVector(featureVector.size());
-            for (auto i = 0; i  < classifiedFeatures.size(); ++i) {
-                diffVector[i] = featureVector[i] - classifiedFeatures[i];
+            float dotProduct = 0.f, classifiedFeaturesLength = 0.f, featuresLength = 0.f;
+
+            for (auto i = 0; i  < featureVector.size(); ++i) {
+                dotProduct += classifiedFeatures[i] * featureVector[i];
+                classifiedFeaturesLength += classifiedFeatures[i] * classifiedFeatures[i];
+                featuresLength += featureVector[i] * featureVector[i];
             }
 
-            float sum = 0.f;
-            for (auto i = 0; i  < diffVector.size(); ++i) {
-                sum += diffVector[i] * diffVector[i];
-            }
+            classifiedFeaturesLength = sqrtf(classifiedFeaturesLength);            
+            featuresLength = sqrtf(featuresLength);
 
-            sum = sqrtf(sum);
-            if (sum < min) {
-                min = sum;
+            float angleCos = dotProduct / (classifiedFeaturesLength * featuresLength);
+            float angle = acosf(angleCos);
+
+            if (angle < min) {
+                min = angle;
             }
         }
        minimums[it->first] = min;

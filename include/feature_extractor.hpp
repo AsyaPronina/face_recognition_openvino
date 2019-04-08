@@ -56,7 +56,6 @@ struct FeatureExtraction {
 
     std::string input;
     std::string output;
-    int featureVectorSize;
     int enquedFrames;
     float width;
     float height;
