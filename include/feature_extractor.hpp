@@ -60,5 +60,6 @@ struct FeatureExtraction {
     float width;
     float height;
     bool resultsFetched;
+    int featureVectorSize;
     std::vector<float> results;
 };

@@ -4,7 +4,7 @@
 #include "tmp_database.hpp"
 
 //Fin angle, think about threshold.
-std::string  Classifier::classify(std::vector<float> featureVector) {
+std::string  Classification::classify(std::vector<float> featureVector) {
     std::map<std::string, float> minimums;
     for (auto it = classifiedFaces.begin(); it != classifiedFaces.end(); ++it) {
         auto itFeatureVectors = it->second;
@@ -29,11 +29,18 @@ std::string  Classifier::classify(std::vector<float> featureVector) {
             featuresLength = sqrtf(featuresLength);
 
             float angleCos = dotProduct / (classifiedFeaturesLength * featuresLength);
+
+            if (angleCos < -1.0) angleCos = -1.0 ;
+            else if (angleCos > 1.0) angleCos = 1.0 ;
+
             float angle = acosf(angleCos);
 
             if (angle < min) {
                 min = angle;
             }
+
+            //slog::info << it->first << " angleCos : " << angleCos << slog::endl;
+            //slog::info << it->first << " angle : " << angle << slog::endl;
         }
        minimums[it->first] = min;
     }

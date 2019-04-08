@@ -17,6 +17,6 @@
 
 #include <opencv2/opencv.hpp>
 
-struct Classifier {
+struct Classification {
     std::string classify(std::vector<float> featureVector);
 };

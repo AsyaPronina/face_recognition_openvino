@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
             FaceDetection faceDetector(FLAGS_m, FLAGS_d, 1, false, FLAGS_async, 0.5, FLAGS_r);
             FacialLandmarksDetection facialLandmarksDetector(FLAGS_m_lm, FLAGS_d_lm, FLAGS_n_lm, FLAGS_dyn_lm, FLAGS_async);
             FeatureExtraction featureExtractor(FLAGS_m_fe, FLAGS_d_fe, 1, false, FLAGS_async);
-            Classifier classifier;
+            Classification classifier;
 
             std::string deviceName = "CPU";
             InferencePlugin plugin = PluginDispatcher({"../../../lib/intel64", ""}).getPluginByDevice(deviceName);
