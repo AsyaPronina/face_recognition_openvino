@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <gflags/gflags.h>
 #include <functional>
 #include <iostream>
 #include <fstream>

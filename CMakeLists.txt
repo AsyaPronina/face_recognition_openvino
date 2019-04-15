@@ -68,7 +68,6 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 ####################################
 
-set (GFLAGS_IS_SUBPROJECT TRUE)
 set (HAVE_SYS_STAT_H 1)
 set (HAVE_INTTYPES_H 1)
 
@@ -77,7 +76,6 @@ add_compile_options("-Werror")
 include_directories (
     $ENV{InferenceEngine_DIR}/../samples/common/format_reader
     ${InferenceEngine_INCLUDE_DIRS}
-    ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/gflags/include
     $ENV{InferenceEngine_DIR}/../samples/common
     $ENV{InferenceEngine_DIR}/../
 )
@@ -86,8 +84,6 @@ if (UNIX)
     set (LIB_DL dl)
 endif()
 
-add_subdirectory($ENV{InferenceEngine_DIR}/../samples/thirdparty/gflags
-                 gflags_build)
 add_subdirectory($ENV{InferenceEngine_DIR}/../samples/common/format_reader
                  format_reader_build)
 
@@ -112,16 +108,14 @@ source_group("include" FILES ${MAIN_HEADERS})
 link_directories(${LIB_FOLDER})
 
 # Create library file from sources.
-add_executable(${TARGET_NAME} ${MAIN_SRC} ${MAIN_HEADERS})
+add_library(${TARGET_NAME} SHARED ${MAIN_SRC} ${MAIN_HEADERS})
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_dependencies(${TARGET_NAME} gflags)
-
-set_target_properties(${TARGET_NAME} PROPERTIES "CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -fPIE"
+set_target_properties(${TARGET_NAME} PROPERTIES "CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -shared -fPIC"
 COMPILE_PDB_NAME ${TARGET_NAME})
 
 
-target_link_libraries(${TARGET_NAME} IE::ie_cpu_extension ${InferenceEngine_LIBRARIES} gflags ${OpenCV_LIBRARIES})
+target_link_libraries(${TARGET_NAME} IE::ie_cpu_extension ${InferenceEngine_LIBRARIES} ${OpenCV_LIBRARIES})
 
 if(UNIX)
     target_link_libraries( ${TARGET_NAME} ${LIB_DL} pthread)
