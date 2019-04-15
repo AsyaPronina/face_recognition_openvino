@@ -36,9 +36,9 @@
 #include "feature_extractor.hpp"
 #include "classifier.hpp"
 
-std::string faceDetectionModel = "/home/asyadev/Study/DL/face_recognition_openvino_prototype/models/face-detection-adas-0001.xml";
-std::string facialLandmarksModel = "/home/asyadev/Study/DL/face_recognition_openvino_prototype/models/facial-landmarks-35-adas-0001.xml";
-std::string featureExtractionModel = "/home/asyadev/Study/DL/face_recognition_openvino_prototype/models/Sphereface.xml";
+std::string faceDetectionModel = "models/face-detection-adas-0001.xml";
+std::string facialLandmarksModel = "models/facial-landmarks-35-adas-0001.xml";
+std::string featureExtractionModel = "models/Sphereface.xml";
 
 using namespace InferenceEngine;
 
@@ -52,9 +52,10 @@ std::string retrievePath(int argc, char *argv[]) {
     return "";
 }
 
-bool recognizeFace(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData
-                   /*unsigned char*** alignedImagesData, unsigned int** alignedImagesWidth, unsigned int** alignedImagesHeight*/) {
+extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData
+                               /*unsigned char** alignedImagesData, unsigned int* alignedImagesWidth, unsigned int* alignedImagesHeight*/) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
+
     auto size = image.size();
     const size_t width = size.width;
     const size_t height = size.height;
@@ -62,23 +63,25 @@ bool recognizeFace(unsigned char* sourceImageData, int rows, int cols, unsigned 
     // ---------------------------------------------------------------------------------------------------
     // --------------------------- 1. Loading plugin to the Inference Engine -----------------------------
     std::string deviceName = "CPU";
+    std::map<std::string, InferencePlugin> pluginsForDevices;
 
     FaceDetection faceDetector(faceDetectionModel, deviceName, 1, false, false, 0.5, false);
-    FacialLandmarksDetection facialLandmarksDetector(facialLandmarksModel, deviceName, 1, false, false);
+    FacialLandmarksDetection facialLandmarksDetector(facialLandmarksModel, deviceName, 16, false, false);
     FeatureExtraction featureExtractor(featureExtractionModel, deviceName, 1, false, false);
     Classification classifier;
 
     InferencePlugin plugin = PluginDispatcher({"../../../lib/intel64", ""}).getPluginByDevice(deviceName);
     plugin.AddExtension(std::make_shared<Extensions::Cpu::CpuExtensions>());
+    pluginsForDevices[deviceName] = plugin;
 
     // ---------------------------------------------------------------------------------------------------
 
     // --------------------------- 2. Reading IR models and loading them to plugins ----------------------
     // Disable dynamic batching for face detector as it processes one image at a time
     // Disable dynamic batching for feature extractor for prototype
-    Load<decltype(faceDetector)>(faceDetector).into(plugin, false);
-    Load<decltype(facialLandmarksDetector)>(facialLandmarksDetector).into(plugin, false);
-    Load<decltype(featureExtractor)>(featureExtractor).into(plugin, false);
+    Load<decltype(faceDetector)>(faceDetector).into(pluginsForDevices[deviceName], false);
+    Load<decltype(facialLandmarksDetector)>(facialLandmarksDetector).into(pluginsForDevices[deviceName], false);
+    Load<decltype(featureExtractor)>(featureExtractor).into(pluginsForDevices[deviceName], false);
     // ----------------------------------------------------------------------------------------------------
 
     // --------------------------- 3. Doing inference -----------------------------------------------------
@@ -213,10 +216,11 @@ bool recognizeFace(unsigned char* sourceImageData, int rows, int cols, unsigned 
 //            }
 
             // For every detected face
+
             cv::Mat detectedFaces(rows, cols, CV_8UC3, detectionImageData);
-            detectedFaces = image;
+            image.copyTo(detectedFaces);
             cv::Mat recognizedFaces(rows, cols, CV_8UC3, recognizedImageData);
-            recognizedFaces = image;
+            image.copyTo(recognizedFaces);
 
             int i = 0;
             for (auto &result : detectionResults) {
@@ -243,16 +247,12 @@ bool recognizeFace(unsigned char* sourceImageData, int rows, int cols, unsigned 
             }
 
             timer.finish("visualization");
-
 //            for (auto alignedFace : alignedFaces) {
 //            }
         }
 
-        cv::waitKey(0);
         timer.finish("total");
     }
-
-    return true;
 }
 
 int main(int argc, char *argv[]) {
@@ -267,8 +267,9 @@ int main(int argc, char *argv[]) {
             }
 
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            unsigned char * recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            recognizeFace(image.data, image.size().width, image.size().height, detectionImageData, recognizedImageData);
+            unsigned char* recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
+            recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData);
+            slog::info << "Crash will no be output here" << slog::endl;
 
         }
     catch (const std::exception& error) {

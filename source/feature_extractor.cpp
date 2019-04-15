@@ -13,7 +13,9 @@ FeatureExtraction::FeatureExtraction(const std::string &pathToModel,
     }
 }
 
-FeatureExtraction::~FeatureExtraction() {}
+FeatureExtraction::~FeatureExtraction() {
+    request.reset();
+}
 
 InferenceEngine::ExecutableNetwork* FeatureExtraction::operator ->() {
     return &net;

@@ -71,8 +71,6 @@ set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 set (HAVE_SYS_STAT_H 1)
 set (HAVE_INTTYPES_H 1)
 
-add_compile_options("-Werror")
-
 include_directories (
     $ENV{InferenceEngine_DIR}/../samples/common/format_reader
     ${InferenceEngine_INCLUDE_DIRS}
@@ -111,12 +109,12 @@ link_directories(${LIB_FOLDER})
 add_library(${TARGET_NAME} SHARED ${MAIN_SRC} ${MAIN_HEADERS})
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set_target_properties(${TARGET_NAME} PROPERTIES "CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -shared -fPIC"
+set_target_properties(${TARGET_NAME} PROPERTIES "CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -o -shared -fPIC -fPIE"
 COMPILE_PDB_NAME ${TARGET_NAME})
 
 
 target_link_libraries(${TARGET_NAME} IE::ie_cpu_extension ${InferenceEngine_LIBRARIES} ${OpenCV_LIBRARIES})
 
-if(UNIX)
-    target_link_libraries( ${TARGET_NAME} ${LIB_DL} pthread)
-endif()
+#if(UNIX)
+#    target_link_libraries( ${TARGET_NAME} ${LIB_DL} pthread)
+#endif()
