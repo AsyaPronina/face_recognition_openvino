@@ -73,9 +73,7 @@ set (HAVE_INTTYPES_H 1)
 
 include_directories (
     $ENV{InferenceEngine_DIR}/../samples/common/format_reader
-    ${InferenceEngine_INCLUDE_DIRS}
     $ENV{InferenceEngine_DIR}/../samples/common
-    $ENV{InferenceEngine_DIR}/../
 )
 
 if (UNIX)
@@ -115,6 +113,6 @@ COMPILE_PDB_NAME ${TARGET_NAME})
 
 target_link_libraries(${TARGET_NAME} IE::ie_cpu_extension ${InferenceEngine_LIBRARIES} ${OpenCV_LIBRARIES})
 
-#if(UNIX)
-#    target_link_libraries( ${TARGET_NAME} ${LIB_DL} pthread)
-#endif()
+if(UNIX)
+    target_link_libraries( ${TARGET_NAME} ${LIB_DL} pthread)
+endif()
