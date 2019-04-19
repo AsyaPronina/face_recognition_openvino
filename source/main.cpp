@@ -36,6 +36,10 @@
 #include "feature_extractor.hpp"
 #include "classifier.hpp"
 
+//Switch to singletone
+Timer timer;
+std::vector<cv::Mat> alignedFaces;
+
 std::string faceDetectionModel = "models/face-detection-adas-0001.xml";
 std::string facialLandmarksModel = "models/facial-landmarks-35-adas-0001.xml";
 std::string featureExtractionModel = "models/Sphereface.xml";
@@ -52,8 +56,41 @@ std::string retrievePath(int argc, char *argv[]) {
     return "";
 }
 
-extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData
-                               /*unsigned char** alignedImagesData, unsigned int* alignedImagesWidth, unsigned int* alignedImagesHeight*/) {
+extern "C" void clear() {
+    alignedFaces.clear();
+}
+
+extern "C" double getFaceRecognitionTime() {
+    return timer["total"].getSmoothedDuration();
+}
+
+extern "C" int getAlignedFacesCount() {
+     return alignedFaces.size();
+}
+
+extern "C" void getAlignedFacesSizes(unsigned int* widthData, unsigned int* heightData) {
+    for (auto alignedFace : alignedFaces) {
+        *widthData = alignedFace.size().width;
+        *heightData = alignedFace.size().height;
+
+        ++widthData;
+        ++heightData;
+    }
+}
+
+extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
+    for (auto alignedFace : alignedFaces) {
+        auto width = alignedFace.size().width;
+        auto height = alignedFace.size().height;
+
+        cv::Mat alignedImageMat(height, width, CV_8UC3, alignedImagesData);
+        alignedFace.copyTo(alignedImageMat);
+
+        alignedImagesData += width * height * 3;
+    }
+}
+
+extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
@@ -89,7 +126,6 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
 
     bool isFaceAnalyticsEnabled = facialLandmarksDetector.enabled();
 
-    Timer timer;
     timer.start("total");
 
     std::ostringstream out;
@@ -126,7 +162,6 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
         timer.finish("facial landmarks detector");
 
         timer.start("face preprocessing");
-        std::vector<cv::Mat> alignedFaces;
         if (isFaceAnalyticsEnabled) {
             int i = 0;
             for (auto &result : detectionResults) {
@@ -137,7 +172,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                 auto rightEye = { cv::Point2f { normedLandmarks[4], normedLandmarks[5] },
                                    cv::Point2f { normedLandmarks[6], normedLandmarks[7] } };
                 cv::Mat alignedFace = alignFace(detectedFaces[i], leftEye, rightEye);
-                alignedFaces.push_back(alignedFace);
+                alignedFaces.push_back(alignedFace); // alignedFaces is temporarily global variable
 
                 if (!alignedFace.empty()) {
                     featureExtractor.enqueue(alignedFace);
@@ -171,6 +206,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
             persons.push_back(label);
         }
         timer.finish("classifier");
+        timer.finish("total");
 
         // Visualizing results
         {
@@ -233,8 +269,9 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                 out.str("");
 
 
-                out << persons[i]
-                    << ": " << std::fixed << std::setprecision(3) << result.confidence;
+                out << persons[i];
+                    //Here is detection confidence, but recognition confidence shall be calculated.
+                    //<< ": " << std::fixed << std::setprecision(3) << result.confidence;
 
 
                 cv::putText(recognizedFaces,
@@ -247,11 +284,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
             }
 
             timer.finish("visualization");
-//            for (auto alignedFace : alignedFaces) {
-//            }
         }
-
-        timer.finish("total");
     }
 }
 
@@ -266,9 +299,10 @@ int main(int argc, char *argv[]) {
                 throw std::logic_error("Incorrect path to the input image!");
             }
 
+            //ONLY TO DEBUG
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
             unsigned char* recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData);
+            //recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData);
             slog::info << "Crash will no be output here" << slog::endl;
 
         }
