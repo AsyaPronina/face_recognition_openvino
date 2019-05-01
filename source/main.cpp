@@ -39,6 +39,8 @@
 //Switch to singletone
 Timer timer;
 std::vector<cv::Mat> alignedFaces;
+std::vector<cv::Mat> beforeAlignFaces;
+std::vector<cv::Mat> detectedFaces;
 
 std::string faceDetectionModel = "models/face-detection-adas-0001.xml";
 std::string facialLandmarksModel = "models/facial-landmarks-35-adas-0001.xml";
@@ -58,7 +60,9 @@ std::string retrievePath(int argc, char *argv[]) {
 
 extern "C" void clear() {
     alignedFaces.clear();
+    beforeAlignFaces.clear();
 }
+
 
 extern "C" double getFaceRecognitionTime() {
     return timer["total"].getSmoothedDuration();
@@ -90,6 +94,17 @@ extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     }
 }
 
+extern "C" void getBeforeAlignedFaces(unsigned char* beforeAlignedImagesData) {
+    for (auto detectedFace : beforeAlignFaces) {
+        auto width = detectedFace.size().width;
+        auto height = detectedFace.size().height;
+
+        cv::Mat beforeAlignedImageMat(height, width, CV_8UC3, beforeAlignedImagesData);
+        detectedFace.copyTo(beforeAlignedImageMat);
+
+        beforeAlignedImagesData += width * height * 3;
+    }
+}
 extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
@@ -140,7 +155,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
         auto detectionResults = faceDetector.results;
         timer.finish("detection");
 
-        std::vector<cv::Mat> detectedFaces;
+
         timer.start("data postprocessing");
         // Filling inputs of face analytics networks
         for (auto &&face : detectionResults) {
@@ -171,6 +186,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                                   cv::Point2f { normedLandmarks[2], normedLandmarks[3] } };
                 auto rightEye = { cv::Point2f { normedLandmarks[4], normedLandmarks[5] },
                                    cv::Point2f { normedLandmarks[6], normedLandmarks[7] } };
+		beforeAlignFaces.push_back(detectedFaces[i]);
                 cv::Mat alignedFace = alignFace(detectedFaces[i], leftEye, rightEye);
                 alignedFaces.push_back(alignedFace); // alignedFaces is temporarily global variable
 
@@ -263,8 +279,8 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
 
                 cv::Rect rect = result.location;
 
-                cv::rectangle(detectedFaces, result.location, cv::Scalar(100, 100, 100), 1);
-                cv::rectangle(recognizedFaces, result.location, cv::Scalar(100, 100, 100), 1);
+                cv::rectangle(detectedFaces, result.location, cv::Scalar(100, 100, 100), 5);
+                cv::rectangle(recognizedFaces, result.location, cv::Scalar(100, 100, 100), 5);
 
                 out.str("");
 
@@ -277,8 +293,8 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                 cv::putText(recognizedFaces,
                             out.str(),
                             cv::Point2f(result.location.x, result.location.y - 15),
-                            cv::FONT_HERSHEY_COMPLEX_SMALL,
-                            0.8,
+                            cv::FONT_HERSHEY_COMPLEX,
+                            2,
                             cv::Scalar(0, 0, 255));
                 i++;
             }
