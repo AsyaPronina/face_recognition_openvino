@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
+#include <regex>
 
 #include <inference_engine.hpp>
 
@@ -90,7 +91,7 @@ extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     }
 }
 
-extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData) {
+extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathDetectionResult) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
@@ -263,6 +264,14 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
 
                 cv::Rect rect = result.location;
 
+                // resize rect according center
+                double x_off = result.location.width*0.2;
+                double y_off = result.location.height*0.15;
+                result.location.x=int(result.location.x+x_off);
+                result.location.y=int(result.location.y+y_off * 1.7);
+                result.location.width=int(result.location.width-1.9* x_off);
+                result.location.height=int(result.location.height-2.5 * y_off);
+
                 cv::rectangle(detectedFaces, result.location, cv::Scalar(100, 100, 100), 1);
                 cv::rectangle(recognizedFaces, result.location, cv::Scalar(100, 100, 100), 1);
 
@@ -285,6 +294,19 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
 
             timer.finish("visualization");
         }
+
+        //SAVING TO FILE
+         int j = 0;
+        //slog::info << "check path" <<pathCalcMAP<< slog::endl << pathDetectionResult<< slog::endl;
+         std::ofstream outfile_predicted(pathCalcMAP);
+         std::ofstream outfile_with_classes(pathDetectionResult);
+         for (auto &result : detectionResults) {
+             outfile_predicted << "detection" << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
+             outfile_with_classes << persons[j] << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
+             j++;
+         }
+         outfile_predicted.close();
+         outfile_with_classes.close();
     }
 }
 
@@ -299,10 +321,12 @@ int main(int argc, char *argv[]) {
                 throw std::logic_error("Incorrect path to the input image!");
             }
 
+            char pathCalcMAP[path.length()+1];
+            char pathDetectionResult[path.length()+1];
             //ONLY TO DEBUG
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
             unsigned char* recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            //recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData);
+            recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData, pathCalcMAP, pathDetectionResult);
             slog::info << "Crash will no be output here" << slog::endl;
 
         }
