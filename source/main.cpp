@@ -59,6 +59,7 @@ std::string retrievePath(int argc, char *argv[]) {
 
 extern "C" void clear() {
     alignedFaces.clear();
+    detectedFaces.clear();
 }
 
 
