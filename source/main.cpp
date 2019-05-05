@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
-#include <regex>
 
 #include <inference_engine.hpp>
 
@@ -91,7 +90,7 @@ extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     }
 }
 
-extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathDetectionResult) {
+extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
@@ -295,11 +294,11 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
             timer.finish("visualization");
         }
 
-        //SAVING TO FILE
+        //saving to file results of recognition and detection for metrics (coords of bbox,class)
          int j = 0;
-        //slog::info << "check path" <<pathCalcMAP<< slog::endl << pathDetectionResult<< slog::endl;
+        //slog::info << "check path" <<pathCalcMAP<< slog::endl <<pathRecognitionResult<< slog::endl;
          std::ofstream outfile_predicted(pathCalcMAP);
-         std::ofstream outfile_with_classes(pathDetectionResult);
+         std::ofstream outfile_with_classes(pathRecognitionResult);
          for (auto &result : detectionResults) {
              outfile_predicted << "detection" << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
              outfile_with_classes << persons[j] << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
@@ -322,11 +321,11 @@ int main(int argc, char *argv[]) {
             }
 
             char pathCalcMAP[path.length()+1];
-            char pathDetectionResult[path.length()+1];
+            char pathRecognitionResult[path.length()+1];
             //ONLY TO DEBUG
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
             unsigned char* recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData, pathCalcMAP, pathDetectionResult);
+            recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData, pathCalcMAP, pathRecognitionResult);
             slog::info << "Crash will no be output here" << slog::endl;
 
         }
