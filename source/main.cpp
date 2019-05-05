@@ -39,7 +39,6 @@
 //Switch to singletone
 Timer timer;
 std::vector<cv::Mat> alignedFaces;
-std::vector<cv::Mat> beforeAlignFaces;
 std::vector<cv::Mat> detectedFaces;
 
 std::string faceDetectionModel = "models/face-detection-adas-0001.xml";
@@ -60,7 +59,6 @@ std::string retrievePath(int argc, char *argv[]) {
 
 extern "C" void clear() {
     alignedFaces.clear();
-    beforeAlignFaces.clear();
 }
 
 
@@ -94,15 +92,15 @@ extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     }
 }
 
-extern "C" void getBeforeAlignedFaces(unsigned char* beforeAlignedImagesData) {
-    for (auto detectedFace : beforeAlignFaces) {
+extern "C" void getDetectedFaces(unsigned char* detectedImagesData) {
+    for (auto detectedFace : detectedFaces) {
         auto width = detectedFace.size().width;
         auto height = detectedFace.size().height;
 
-        cv::Mat beforeAlignedImageMat(height, width, CV_8UC3, beforeAlignedImagesData);
-        detectedFace.copyTo(beforeAlignedImageMat);
+        cv::Mat detectedImageMat(height, width, CV_8UC3, detectedImagesData);
+        detectedFace.copyTo(detectedImageMat);
 
-        beforeAlignedImagesData += width * height * 3;
+        detectedImagesData += width * height * 3;
     }
 }
 extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData) {
@@ -186,7 +184,6 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                                   cv::Point2f { normedLandmarks[2], normedLandmarks[3] } };
                 auto rightEye = { cv::Point2f { normedLandmarks[4], normedLandmarks[5] },
                                    cv::Point2f { normedLandmarks[6], normedLandmarks[7] } };
-		beforeAlignFaces.push_back(detectedFaces[i]);
                 cv::Mat alignedFace = alignFace(detectedFaces[i], leftEye, rightEye);
                 alignedFaces.push_back(alignedFace); // alignedFaces is temporarily global variable
 
