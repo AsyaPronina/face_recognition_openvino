@@ -39,6 +39,7 @@
 //Switch to singletone
 Timer timer;
 std::vector<cv::Mat> alignedFaces;
+std::vector<cv::Mat> detectedFaces;
 
 std::string faceDetectionModel = "models/face-detection-adas-0001.xml";
 std::string facialLandmarksModel = "models/facial-landmarks-35-adas-0001.xml";
@@ -58,7 +59,9 @@ std::string retrievePath(int argc, char *argv[]) {
 
 extern "C" void clear() {
     alignedFaces.clear();
+    detectedFaces.clear();
 }
+
 
 extern "C" double getFaceRecognitionTime() {
     return timer["total"].getSmoothedDuration();
@@ -90,6 +93,17 @@ extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     }
 }
 
+extern "C" void getDetectedFaces(unsigned char* detectedImagesData) {
+    for (auto detectedFace : detectedFaces) {
+        auto width = detectedFace.size().width;
+        auto height = detectedFace.size().height;
+
+        cv::Mat detectedImageMat(height, width, CV_8UC3, detectedImagesData);
+        detectedFace.copyTo(detectedImageMat);
+
+        detectedImagesData += width * height * 3;
+    }
+}
 extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
@@ -140,7 +154,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
         auto detectionResults = faceDetector.results;
         timer.finish("detection");
 
-        std::vector<cv::Mat> detectedFaces;
+
         timer.start("data postprocessing");
         // Filling inputs of face analytics networks
         for (auto &&face : detectionResults) {
@@ -263,7 +277,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
 
                 cv::Rect rect = result.location;
 
-                // resize rect according center
+                                 // resize rect according center
                 double x_off = result.location.width*0.2;
                 double y_off = result.location.height*0.15;
                 result.location.x=int(result.location.x+x_off);
@@ -271,8 +285,8 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                 result.location.width=int(result.location.width-1.9* x_off);
                 result.location.height=int(result.location.height-2.5 * y_off);
 
-                cv::rectangle(detectedFaces, result.location, cv::Scalar(100, 100, 100), 1);
-                cv::rectangle(recognizedFaces, result.location, cv::Scalar(100, 100, 100), 1);
+                cv::rectangle(detectedFaces, result.location, cv::Scalar(100, 100, 100), 5);
+                cv::rectangle(recognizedFaces, result.location, cv::Scalar(100, 100, 100), 5);
 
                 out.str("");
 
@@ -285,8 +299,8 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
                 cv::putText(recognizedFaces,
                             out.str(),
                             cv::Point2f(result.location.x, result.location.y - 15),
-                            cv::FONT_HERSHEY_COMPLEX_SMALL,
-                            0.8,
+                            cv::FONT_HERSHEY_COMPLEX,
+                            2,
                             cv::Scalar(0, 0, 255));
                 i++;
             }
@@ -294,7 +308,7 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
             timer.finish("visualization");
         }
 
-        //saving to file results of recognition and detection for metrics (coords of bbox,class)
+                //saving to file results of recognition and detection for metrics (coords of bbox,class)
          int j = 0;
         //slog::info << "check path" <<pathCalcMAP<< slog::endl <<pathRecognitionResult<< slog::endl;
          std::ofstream outfile_predicted(pathCalcMAP);
@@ -306,7 +320,9 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
          }
          outfile_predicted.close();
          outfile_with_classes.close();
-    }
+
+
+}
 }
 
 int main(int argc, char *argv[]) {
@@ -320,12 +336,13 @@ int main(int argc, char *argv[]) {
                 throw std::logic_error("Incorrect path to the input image!");
             }
 
-            char pathCalcMAP[path.length()+1];
+                        char pathCalcMAP[path.length()+1];
             char pathRecognitionResult[path.length()+1];
+
             //ONLY TO DEBUG
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
             unsigned char* recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData, pathCalcMAP, pathRecognitionResult);
+            //recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData, pathCalcMAP, pathRecognitionResult);
             slog::info << "Crash will no be output here" << slog::endl;
 
         }
