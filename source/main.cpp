@@ -104,6 +104,7 @@ extern "C" void getDetectedFaces(unsigned char* detectedImagesData) {
         detectedImagesData += width * height * 3;
     }
 }
+
 extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
