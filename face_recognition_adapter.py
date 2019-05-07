@@ -4,6 +4,8 @@ import argparse
 import numpy as np
 import ctypes as C
 import cv2
+import os
+import sys
 
 def get_parser():
     parser = argparse.ArgumentParser()
@@ -11,17 +13,23 @@ def get_parser():
 
     return parser
 
-face_recognition = C.cdll.LoadLibrary('libface_recognition.so')
+current_path=os.path.dirname(os.path.abspath(sys.argv[0]))
+path_library=current_path+'/libface_recognition.so'
+#face_recognition = C.cdll.LoadLibrary('/home/anastasiia/Documents/project/web/libface_recognition.so')
+face_recognition = C.cdll.LoadLibrary(path_library)
 
-def recognize_faces(image):
+def recognize_faces(image, path_for_calculate_map, path_for_result_detection_net):
     (rows, cols, depth) = (image.shape[0], image.shape[1], image.shape[2])
     detection_results = np.zeros(dtype=np.uint8, shape=(rows, cols, depth))
     recognition_results = np.zeros(dtype=np.uint8, shape=(rows, cols, depth))
-    
-    
+    path_map = path_for_calculate_map.encode('utf-8') 
+    path_res = path_for_result_detection_net.encode('utf-8')
+
     face_recognition.recognizeFaces(image.ctypes.data_as(C.POINTER(C.c_ubyte)), rows, cols,
                                     detection_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
                                     recognition_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
+                                    C.c_char_p(path_map),
+                                    C.c_char_p(path_res)
                                     )
 
     aligned_faces_count = face_recognition.getAlignedFacesCount()
@@ -63,8 +71,14 @@ def recognize_faces(image):
 if __name__ == '__main__':
     image_path = get_parser().parse_args().path   
     image = cv2.imread(image_path)
+
+    fname=os.path.basename(image_path)
+    fnameWithoutExt=os.path.splitext(fname)[0]
     
-    detects, recogns, aligns, time  = recognize_faces(image);
+    path_for_calculate_map=current_path+"/mAP-master/input/detection-results/"+fnameWithoutExt+".txt"
+    path_for_result_detection_net=current_path+"/mAP-master/data/predicted/"+fnameWithoutExt+".txt"
+    
+    detects, recogns, aligns, time  = recognize_faces(image,path_for_calculate_map,path_for_result_detection_net);
 
     cv2.imshow('Source image', image)
     cv2.waitKey()
