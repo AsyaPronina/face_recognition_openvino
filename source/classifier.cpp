@@ -12,10 +12,9 @@ std::string  Classification::classify(std::vector<float> featureVector) {
         for (auto itClassifiedFeatureVector = itFeatureVectors.begin(); itClassifiedFeatureVector != itFeatureVectors.end(); ++itClassifiedFeatureVector) {
             auto classifiedFeatures = *itClassifiedFeatureVector;
 
-            slog::info << "size: " << featureVector.size() << slog::endl;
-//            if ((classifiedFeatures.size() != featureVector.size())) {
-//               // throw std::logic_error("Classified feature vector size does not equal to input feature vector size!");
-//            }
+            if ((classifiedFeatures.size() != featureVector.size())) {
+                throw std::logic_error("Classified feature vector size does not equal to input feature vector size!");
+            }
 
             float dotProduct = 0.f, classifiedFeaturesLength = 0.f, featuresLength = 0.f;
 

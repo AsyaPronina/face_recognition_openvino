@@ -57,21 +57,21 @@ std::string retrievePath(int argc, char *argv[]) {
     return "";
 }
 
-extern "C" void clear() {
+extern "C" __declspec(dllexport) void clear() {
     alignedFaces.clear();
     detectedFaces.clear();
 }
 
 
-extern "C" double getFaceRecognitionTime() {
+extern "C" __declspec(dllexport) double getFaceRecognitionTime() {
     return timer["total"].getSmoothedDuration();
 }
 
-extern "C" int getAlignedFacesCount() {
+extern "C" __declspec(dllexport) int getAlignedFacesCount() {
      return alignedFaces.size();
 }
 
-extern "C" void getAlignedFacesSizes(unsigned int* widthData, unsigned int* heightData) {
+extern "C" __declspec(dllexport) void getAlignedFacesSizes(unsigned int* widthData, unsigned int* heightData) {
     for (auto alignedFace : alignedFaces) {
         *widthData = alignedFace.size().width;
         *heightData = alignedFace.size().height;
@@ -81,7 +81,7 @@ extern "C" void getAlignedFacesSizes(unsigned int* widthData, unsigned int* heig
     }
 }
 
-extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
+extern "C" __declspec(dllexport) void getAlignedFaces(unsigned char* alignedImagesData) {
     for (auto alignedFace : alignedFaces) {
         auto width = alignedFace.size().width;
         auto height = alignedFace.size().height;
@@ -93,7 +93,7 @@ extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     }
 }
 
-extern "C" void getDetectedFaces(unsigned char* detectedImagesData) {
+extern "C" __declspec(dllexport) void getDetectedFaces(unsigned char* detectedImagesData) {
     for (auto detectedFace : detectedFaces) {
         auto width = detectedFace.size().width;
         auto height = detectedFace.size().height;
@@ -105,7 +105,7 @@ extern "C" void getDetectedFaces(unsigned char* detectedImagesData) {
     }
 }
 
-extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
+extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
@@ -176,7 +176,9 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
         }
         timer.finish("facial landmarks detector");
 
-        timer.start("face preprocessing");
+        timer.start("face preprocessing && feature extractor");
+        std::vector<std::vector<float>> featureVectors;
+
         if (isFaceAnalyticsEnabled) {
             int i = 0;
             for (auto &result : detectionResults) {
@@ -191,27 +193,17 @@ extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int col
 
                 if (!alignedFace.empty()) {
                     featureExtractor.enqueue(alignedFace);
+                    featureExtractor.submitRequest();
+                    featureExtractor.wait();
+                    featureExtractor.fetchResults();
+
+                    featureVectors.push_back(featureExtractor.results);
                 }
 
                 ++i;
             }
         }
-        timer.finish("face preprocessing");
-
-        timer.start("feature extractor");
-        std::vector<std::vector<float>> featureVectors;
-
-        if (isFaceAnalyticsEnabled) {
-            featureExtractor.submitRequest();
-            featureExtractor.wait();
-            featureExtractor.fetchResults();
-
-            auto resultsSize = detectionResults.size();
-            for (int i = 0; i < resultsSize; ++i) {
-                featureVectors.push_back(featureExtractor.results);
-            }
-        }
-        timer.finish("feature extractor");
+        timer.finish("face preprocessing && feature extractor");
 
         timer.start("classifier");
 
@@ -337,8 +329,12 @@ int main(int argc, char *argv[]) {
                 throw std::logic_error("Incorrect path to the input image!");
             }
 
-                        char pathCalcMAP[path.length()+1];
-            char pathRecognitionResult[path.length()+1];
+            //char pathCalcMAP[path.length()+1];
+            //char pathRecognitionResult[path.length()+1];
+
+            //variable-length arrays are extensions of gcc, so for Windows cl:
+            char pathCalcMAP[100];
+            char pathRecognitionResult[100];
 
             //ONLY TO DEBUG
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
