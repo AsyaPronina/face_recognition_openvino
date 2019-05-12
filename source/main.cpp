@@ -57,21 +57,21 @@ std::string retrievePath(int argc, char *argv[]) {
     return "";
 }
 
-extern "C" __declspec(dllexport) void clear() {
+extern "C" void clear() {
     alignedFaces.clear();
     detectedFaces.clear();
 }
 
 
-extern "C" __declspec(dllexport) double getFaceRecognitionTime() {
+extern "C" double getFaceRecognitionTime() {
     return timer["total"].getSmoothedDuration();
 }
 
-extern "C" __declspec(dllexport) int getAlignedFacesCount() {
+extern "C" int getAlignedFacesCount() {
      return alignedFaces.size();
 }
 
-extern "C" __declspec(dllexport) void getAlignedFacesSizes(unsigned int* widthData, unsigned int* heightData) {
+extern "C" void getAlignedFacesSizes(unsigned int* widthData, unsigned int* heightData) {
     for (auto alignedFace : alignedFaces) {
         *widthData = alignedFace.size().width;
         *heightData = alignedFace.size().height;
@@ -81,7 +81,7 @@ extern "C" __declspec(dllexport) void getAlignedFacesSizes(unsigned int* widthDa
     }
 }
 
-extern "C" __declspec(dllexport) void getAlignedFaces(unsigned char* alignedImagesData) {
+extern "C" void getAlignedFaces(unsigned char* alignedImagesData) {
     for (auto alignedFace : alignedFaces) {
         auto width = alignedFace.size().width;
         auto height = alignedFace.size().height;
@@ -93,7 +93,7 @@ extern "C" __declspec(dllexport) void getAlignedFaces(unsigned char* alignedImag
     }
 }
 
-extern "C" __declspec(dllexport) void getDetectedFaces(unsigned char* detectedImagesData) {
+extern "C" void getDetectedFaces(unsigned char* detectedImagesData) {
     for (auto detectedFace : detectedFaces) {
         auto width = detectedFace.size().width;
         auto height = detectedFace.size().height;
@@ -105,7 +105,7 @@ extern "C" __declspec(dllexport) void getDetectedFaces(unsigned char* detectedIm
     }
 }
 
-extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
+extern "C" void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
     cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
