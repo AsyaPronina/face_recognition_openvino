@@ -35,7 +35,9 @@
 #include "alignment.hpp"
 #include "feature_extractor.hpp"
 #include "classifier.hpp"
+#include "classifier_model.hpp"
 
+//add #ifdef linux, #else windows for __declspec(dllexpoert) as it is not portable
 //Switch to singletone
 Timer timer;
 std::vector<cv::Mat> alignedFaces;
@@ -44,6 +46,11 @@ std::vector<cv::Mat> detectedFaces;
 std::string faceDetectionModel = "models/face-detection-adas-0001.xml";
 std::string facialLandmarksModel = "models/facial-landmarks-35-adas-0001.xml";
 std::string featureExtractionModel = "models/Sphereface.xml";
+std::string classificationModel = "models/classifier.xml";
+
+std::string currentClass;
+
+static std::unordered_map<std::string, std::vector<std::vector<float>>> facesFeatureVectors{ };
 
 using namespace InferenceEngine;
 
@@ -56,6 +63,77 @@ std::string retrievePath(int argc, char *argv[]) {
 
     return "";
 }
+
+
+//--------For classifier train purposes:--------------
+extern "C" __declspec(dllexport) void setCurrentClass(char* label) {
+	currentClass = label;
+}
+
+extern "C" __declspec(dllexport) void clearCurrentClass() {
+	currentClass = "";
+}
+
+extern "C" __declspec(dllexport) void dumpFeatureVectorsToJson(char* path) {
+	std::ofstream featureVectorsJson(path);
+	
+	featureVectorsJson << "{\n  \"labels\":[ \"" << facesFeatureVectors.begin()->first << "\"";
+	for (auto it = ++(facesFeatureVectors.begin()); it != facesFeatureVectors.end(); ++it) {
+		featureVectorsJson << ", \"" << it->first << "\"";
+	}
+	featureVectorsJson << " ],\n";
+
+	auto firstFaceIt = facesFeatureVectors.begin();
+	featureVectorsJson << "  " << "\"" << firstFaceIt->first << "\":[";
+
+	auto featureVectorsForClass = firstFaceIt->second;
+
+	auto firstFeatureVector = *featureVectorsForClass.begin();
+	featureVectorsJson << "\"" << firstFeatureVector[0];
+	for (int i = 1; i < firstFeatureVector.size(); ++i) {
+		featureVectorsJson << ", " << firstFeatureVector[i];
+	}
+	featureVectorsJson << "\"";
+
+	for (auto it1 = (++featureVectorsForClass.begin()); it1 != featureVectorsForClass.end(); ++it1) {
+		auto featureVector = *it1;
+		featureVectorsJson << ", \"" << featureVector[0];
+		for (int i = 1; i < featureVector.size(); ++i) {
+			featureVectorsJson << ", " << featureVector[i];
+		}
+		featureVectorsJson << "\"";
+	}
+
+	featureVectorsJson << "]";
+
+	for (auto it = (++facesFeatureVectors.begin()); it != facesFeatureVectors.end(); ++it) {
+		featureVectorsJson << ",\n  " << "\"" << it->first << "\":[";
+
+		auto featureVectorsForClass = it->second;
+
+		auto firstFeatureVector = *featureVectorsForClass.begin();
+		featureVectorsJson << "\"" << firstFeatureVector[0];
+		for (int i = 1; i < firstFeatureVector.size(); ++i) {
+			featureVectorsJson << ", " << firstFeatureVector[i];
+		}
+		featureVectorsJson << "\"";
+
+		for (auto it1 = (++featureVectorsForClass.begin()); it1 != featureVectorsForClass.end(); ++it1) {
+			auto featureVector = *it1;
+			featureVectorsJson << ", \"" << featureVector[0];
+			for (int i = 1; i < featureVector.size(); ++i) {
+				featureVectorsJson << ", " << featureVector[i];
+			}
+			featureVectorsJson << "\"";
+		}
+
+		featureVectorsJson << "]";
+	}
+
+	featureVectorsJson << "}";
+}
+//----------------------------------------------------
+
 
 extern "C" __declspec(dllexport) void clear() {
     alignedFaces.clear();
@@ -106,7 +184,7 @@ extern "C" __declspec(dllexport) void getDetectedFaces(unsigned char* detectedIm
 }
 
 extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
-    cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
+	cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
     const size_t width = size.width;
@@ -121,6 +199,7 @@ extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageD
     FacialLandmarksDetection facialLandmarksDetector(facialLandmarksModel, deviceName, 16, false, false);
     FeatureExtraction featureExtractor(featureExtractionModel, deviceName, 1, false, false);
     Classification classifier;
+	ClassificationModel classifierNet(classificationModel, deviceName, 1, false, false);
 
     InferencePlugin plugin = PluginDispatcher({"../../../lib/intel64", ""}).getPluginByDevice(deviceName);
     plugin.AddExtension(std::make_shared<Extensions::Cpu::CpuExtensions>());
@@ -134,6 +213,7 @@ extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageD
     Load<decltype(faceDetector)>(faceDetector).into(pluginsForDevices[deviceName], false);
     Load<decltype(facialLandmarksDetector)>(facialLandmarksDetector).into(pluginsForDevices[deviceName], false);
     Load<decltype(featureExtractor)>(featureExtractor).into(pluginsForDevices[deviceName], false);
+	Load<decltype(classifierNet)>(classifierNet).into(pluginsForDevices[deviceName], false);
     // ----------------------------------------------------------------------------------------------------
 
     // --------------------------- 3. Doing inference -----------------------------------------------------
@@ -155,6 +235,9 @@ extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageD
         auto detectionResults = faceDetector.results;
         timer.finish("detection");
 
+        if (detectionResults.empty()) {
+            return;
+        }
 
         timer.start("data postprocessing");
         // Filling inputs of face analytics networks
@@ -209,9 +292,19 @@ extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageD
 
         std::vector<std::string> persons;
         for (auto featureVector : featureVectors) {
-            auto label = classifier.classify(featureVector);
+			classifierNet.enqueue(featureVector);
+			classifierNet.submitRequest();
+			classifierNet.wait();
+			classifierNet.fetchResults();
+
+			auto label = classifierNet.result;
             persons.push_back(label);
         }
+
+        for (auto featureVector : featureVectors) {
+            facesFeatureVectors[currentClass].push_back(featureVector);
+        }
+
         timer.finish("classifier");
         timer.finish("total");
 
@@ -314,6 +407,19 @@ extern "C" __declspec(dllexport) void recognizeFaces(unsigned char* sourceImageD
          outfile_predicted.close();
          outfile_with_classes.close();
 
+		 /*slog::info << "Database:" << slog::endl;
+		 for (auto it = facesFeatureVectors.begin(); it != facesFeatureVectors.end(); ++it) {
+			 slog::info << it->first << ": ";
+			 auto featuresVectorsForFace = it->second;
+
+			 for (auto it1 = featuresVectorsForFace.begin(); it1 != featuresVectorsForFace.end(); ++it1) {
+				 auto featuresVectorForFace = *it1;
+
+				 slog::info << featuresVectorForFace[0] << ", " << featuresVectorForFace[1] << "..." << slog::endl;
+			 }
+
+			 slog::info << "End of feature vectors for: " << it->first << slog::endl << slog::endl;
+		 }*/
 
 }
 }
@@ -339,7 +445,7 @@ int main(int argc, char *argv[]) {
             //ONLY TO DEBUG
             unsigned char* detectionImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
             unsigned char* recognizedImageData = static_cast<unsigned char*>(malloc(image.size().width * image.size().height * image.depth() * sizeof(unsigned char)));
-            //recognizeFaces(image.data, image.size().height, image.size().width, detectionImageData, recognizedImageData, pathCalcMAP, pathRecognitionResult);
+            //recognizeFaces(image.data, image.size().height, image.size().width);
             slog::info << "Crash will no be output here" << slog::endl;
 
         }

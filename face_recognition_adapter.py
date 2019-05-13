@@ -14,9 +14,9 @@ def get_parser():
     return parser
 
 current_path=os.path.dirname(os.path.abspath(sys.argv[0]))
-path_library=current_path+'/libface_recognition.so'
+path_library=current_path+'/face_recognition.dll'
 #face_recognition = C.cdll.LoadLibrary('/home/anastasiia/Documents/project/web/libface_recognition.so')
-face_recognition = C.cdll.LoadLibrary(path_library)
+face_recognition = C.cdll.LoadLibrary('C:\\Study\\DL\\repository\\face_recognition_openvino\\face_recognition.dll')
 
 def recognize_faces(image, path_for_calculate_map, path_for_result_detection_net):
     (rows, cols, depth) = (image.shape[0], image.shape[1], image.shape[2])
@@ -67,6 +67,15 @@ def recognize_faces(image, path_for_calculate_map, path_for_result_detection_net
     face_recognition.clear()
 
     return detection_results, recognition_results, align_results, recognition_time
+
+def set_class_for_image(label):
+    face_recognition.setCurrentClass(C.c_char_p(label.encode('utf-8')))
+    
+def clear_class():
+    face_recognition.clearCurrentClass()
+    
+def dump_feature_vectors_to_json(json_path):
+    face_recognition.dumpFeatureVectorsToJson(C.c_char_p(json_path.encode('utf-8')))
 
 if __name__ == '__main__':
     image_path = get_parser().parse_args().path   

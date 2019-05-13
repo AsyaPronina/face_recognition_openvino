@@ -20,6 +20,7 @@ template class Load<BaseDetection>;
 template class Load<FaceDetection>;
 template class Load<FacialLandmarksDetection>;
 template class Load<FeatureExtraction>;
+template class Load<ClassificationModel>;
 
 CallStat::CallStat():
     _number_of_calls(0), _total_duration(0.0), _last_call_duration(0.0), _smoothed_duration(-1.0) {

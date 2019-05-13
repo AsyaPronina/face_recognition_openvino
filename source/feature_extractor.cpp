@@ -97,7 +97,7 @@ InferenceEngine::CNNNetwork FeatureExtraction::read()  {
     slog::info << "Checking Feature Extractor network outputs" << slog::endl;
     InferenceEngine::OutputsDataMap outputInfo(netReader.getNetwork().getOutputsInfo());
     if (outputInfo.size() != 1) {
-        throw std::logic_error(std::to_string(outputInfo.size()) + "Face Detection network should have only one output");
+        throw std::logic_error(std::to_string(outputInfo.size()) + "Feature Extractor network should have only one output");
     }
     InferenceEngine::DataPtr& _output = outputInfo.begin()->second;
     output = outputInfo.begin()->first;
@@ -105,7 +105,7 @@ InferenceEngine::CNNNetwork FeatureExtraction::read()  {
     const InferenceEngine::CNNLayerPtr outputLayer = netReader.getNetwork().getLayerByName(output.c_str());
     if (outputLayer->type != "FullyConnected") {
         throw std::logic_error("Feature Extractor network output layer(" + outputLayer->name +
-                               ") should be DetectionOutput, but was " +  outputLayer->type);
+                               ") should be FullyConnected, but was " +  outputLayer->type);
     }
 
     if (outputLayer->params.find("out-size") == outputLayer->params.end()) {
