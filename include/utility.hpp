@@ -8,6 +8,7 @@
 
 #include "detectors.hpp"
 #include "feature_extractor.hpp"
+#include "classifier_model.hpp"
 
 template<typename Component>
 struct Load {

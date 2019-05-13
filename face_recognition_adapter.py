@@ -68,6 +68,15 @@ def recognize_faces(image, path_for_calculate_map, path_for_result_detection_net
 
     return detection_results, recognition_results, align_results, recognition_time
 
+def set_class_for_image(label):
+    face_recognition.setCurrentClass(C.c_char_p(label.encode('utf-8')))
+    
+def clear_class():
+    face_recognition.clearCurrentClass()
+    
+def dump_feature_vectors_to_json(json_path):
+    face_recognition.dumpFeatureVectorsToJson(C.c_char_p(json_path.encode('utf-8')))
+
 if __name__ == '__main__':
     image_path = get_parser().parse_args().path   
     image = cv2.imread(image_path)
