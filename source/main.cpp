@@ -297,6 +297,9 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
 
         std::vector<std::string> persons;
         for (auto featureVector : featureVectors) {
+			/* auto label = classifier.classify(featureVector);
+			   persons.push_back(label); */
+
 			classifierNet.enqueue(featureVector);
 			classifierNet.submitRequest();
 			classifierNet.wait();
