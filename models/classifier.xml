@@ -132,9 +132,9 @@
 			<extensions value="DIR"/>
 			<framework value="onnx"/>
 			<generate_deprecated_IR_V2 value="False"/>
-			<input_model value="DIR\classifier.onnx"/>
+			<input_model value="DIR/classifier.onnx"/>
 			<input_model_is_text value="False"/>
-			<k value="DIR\CustomLayersMapping.xml"/>
+			<k value="DIR/CustomLayersMapping.xml"/>
 			<keep_shape_ops value="False"/>
 			<legacy_mxnet_model value="False"/>
 			<log_level value="ERROR"/>

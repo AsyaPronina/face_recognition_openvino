@@ -299,18 +299,18 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
         timer.start("classifier");
 
         for (auto i = 0; i < featureVectors.size(); ++i) {
-             auto featueVector = featureVectors[i];
+             auto featureVector = featureVectors[i];
 
-             auto label = classifier.classify(featueVector);
-             detectionResults[i].label = label;
+             /*auto label = classifier.classify(featureVector);
+             detectionResults[i].label = label;*/
 
-            /*classifierNet.enqueue(featureVector);
+            classifierNet.enqueue(featureVector);
 			classifierNet.submitRequest();
 			classifierNet.wait();
 			classifierNet.fetchResults();
 
 			auto label = classifierNet.result;
-            detectionResults[i].label = label;*/
+            detectionResults[i].label = label;
         }
 
         timer.finish("classifier");
