@@ -37,6 +37,8 @@
 #include "classifier.hpp"
 #include "classifier_model.hpp"
 
+#include "IOU.hpp"
+
 #ifdef __linux__
     #define FR_EXPORT
 #elif _WIN32
@@ -188,7 +190,8 @@ extern "C" FR_EXPORT void getDetectedFaces(unsigned char* detectedImagesData) {
     }
 }
 
-extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData, char* pathCalcMAP, char* pathRecognitionResult) {
+extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int rows, int cols, unsigned char* detectionImageData, unsigned char* recognizedImageData,
+                                         char* pathCalcMAP, char* pathRecognitionResult, int* groundTruth) {
 	cv::Mat image(rows, cols, CV_8UC3, sourceImageData);
 
     auto size = image.size();
@@ -295,26 +298,87 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
 
         timer.start("classifier");
 
-        std::vector<std::string> persons;
-        for (auto featureVector : featureVectors) {
-			/* auto label = classifier.classify(featureVector);
-			   persons.push_back(label); */
+        for (auto i = 0; i < featureVectors.size(); ++i) {
+             auto featueVector = featureVectors[i];
 
-			classifierNet.enqueue(featureVector);
+             auto label = classifier.classify(featueVector);
+             detectionResults[i].label = label;
+
+            /*classifierNet.enqueue(featureVector);
 			classifierNet.submitRequest();
 			classifierNet.wait();
 			classifierNet.fetchResults();
 
 			auto label = classifierNet.result;
-            persons.push_back(label);
-        }
-
-        for (auto featureVector : featureVectors) {
-            facesFeatureVectors[currentClass].push_back(featureVector);
+            detectionResults[i].label = label;*/
         }
 
         timer.finish("classifier");
         timer.finish("total");
+
+        for (auto &result : detectionResults) {
+
+             // resize rect according center
+            double x_off = result.location.width*0.2;
+            double y_off = result.location.height*0.15;
+            result.location.x = int(result.location.x+x_off);
+            result.location.y = int(result.location.y+y_off * 1.7);
+            result.location.width = int(result.location.width-1.9* x_off);
+            result.location.height = int(result.location.height-2.5 * y_off);
+        }
+
+        if (groundTruth) {
+            std::vector<FaceDetection::Result> groundTruthBoxes { };
+            for (auto i = 0; i < 24; i += 4) {
+                slog::info << groundTruth[i];
+
+                bool isValid = true;
+                for (auto j = 1; j < 4; ++j) {
+                    slog::info << ", " << groundTruth[i + j];
+                }
+
+                slog::info << slog::endl;
+            }
+
+             for (auto i = 0; i < 24; i += 4) {
+
+                if (groundTruth[i] != 0 || groundTruth[i + 2] != 0) {
+                    int index = i / 4;
+                    groundTruthBoxes.push_back(FaceDetection::Result { ClassificationModel::classes[index], 1.0, cv::Rect{ groundTruth[i], groundTruth[i + 1], groundTruth[i + 2], groundTruth[i + 3] } });
+                }
+             }
+
+            for (auto j = 0; j < detectionResults.size(); ++j) {
+                double maxIOU = 0.0;
+                std::string searchedLabel = "";
+                for (auto k = 0; k < groundTruthBoxes.size(); ++k) {
+                    //slog::info << "detected box : " << detectionResults[j].location;
+                    double IOU = calculateIOU(detectionResults[j].location, groundTruthBoxes[k].location);
+                    //slog::endl;
+                    if (IOU > maxIOU) {
+                        maxIOU = IOU;
+                        searchedLabel = groundTruthBoxes[k].label;
+                    }
+                }
+
+                //slog::info << "maxIOU: " << maxIOU << slog::endl;
+                if (maxIOU > 0.5) {
+                    facesFeatureVectors[searchedLabel].push_back(featureVectors[j]);
+                    //slog::info << searchedLabel << slog::endl;
+                    //cv::imshow(searchedLabel, alignedFaces[j]);
+                    //cv::waitKey();
+                }
+                else {
+                    slog::info << "For detected box with label: " << detectionResults[j].label << " there is no ground truth box!" << slog::endl;
+                    std::runtime_error(std::string("For detected box with label: ") + detectionResults[j].label + " there is no ground truth box!\n");
+                }
+            }
+        }
+        else {
+            for (auto featureVector : featureVectors) {
+                facesFeatureVectors[currentClass].push_back(featureVector);
+            }
+        }
 
         // Visualizing results
         {
@@ -366,18 +430,7 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
             cv::Mat recognizedFaces(rows, cols, CV_8UC3, recognizedImageData);
             image.copyTo(recognizedFaces);
 
-            int i = 0;
             for (auto &result : detectionResults) {
-
-                cv::Rect rect = result.location;
-
-                                 // resize rect according center
-                double x_off = result.location.width*0.2;
-                double y_off = result.location.height*0.15;
-                result.location.x=int(result.location.x+x_off);
-                result.location.y=int(result.location.y+y_off * 1.7);
-                result.location.width=int(result.location.width-1.9* x_off);
-                result.location.height=int(result.location.height-2.5 * y_off);
 
                 cv::rectangle(detectedFaces, result.location, cv::Scalar(100, 100, 100), 5);
                 cv::rectangle(recognizedFaces, result.location, cv::Scalar(100, 100, 100), 5);
@@ -385,7 +438,7 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
                 out.str("");
 
 
-                out << persons[i];
+                out << result.label;
                     //Here is detection confidence, but recognition confidence shall be calculated.
                     //<< ": " << std::fixed << std::setprecision(3) << result.confidence;
 
@@ -396,26 +449,23 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
                             cv::FONT_HERSHEY_COMPLEX,
                             2,
                             cv::Scalar(0, 0, 255));
-                i++;
             }
 
             timer.finish("visualization");
         }
 
                 //saving to file results of recognition and detection for metrics (coords of bbox,class)
-         int j = 0;
-        //slog::info << "check path" <<pathCalcMAP<< slog::endl <<pathRecognitionResult<< slog::endl;
+         slog::info << "check path" <<pathCalcMAP<< slog::endl <<pathRecognitionResult<< slog::endl;
          std::ofstream outfile_predicted(pathCalcMAP);
          std::ofstream outfile_with_classes(pathRecognitionResult);
          for (auto &result : detectionResults) {
              outfile_predicted << "detection" << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
-             outfile_with_classes << persons[j] << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
-             j++;
+             outfile_with_classes << result.label << " " << result.confidence<< " " << result.location.x << " " << result.location.y << " " << result.location.x+result.location.width << " " << result.location.y+result.location.height << std::endl;
          }
          outfile_predicted.close();
          outfile_with_classes.close();
 
-		 /*slog::info << "Database:" << slog::endl;
+         slog::info << "Database:" << slog::endl;
 		 for (auto it = facesFeatureVectors.begin(); it != facesFeatureVectors.end(); ++it) {
 			 slog::info << it->first << ": ";
 			 auto featuresVectorsForFace = it->second;
@@ -427,7 +477,7 @@ extern "C" FR_EXPORT void recognizeFaces(unsigned char* sourceImageData, int row
 			 }
 
 			 slog::info << "End of feature vectors for: " << it->first << slog::endl << slog::endl;
-		 }*/
+         }
 
 }
 }

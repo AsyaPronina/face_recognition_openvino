@@ -199,7 +199,7 @@ void FaceDetection::fetchResults() {
     for (int i = 0; i < maxProposalCount; i++) {
         float image_id = detections[i * objectSize + 0];
         Result r;
-        r.label = static_cast<int>(detections[i * objectSize + 1]);
+        r.label = std::to_string(static_cast<int>(detections[i * objectSize + 1]));
         r.confidence = detections[i * objectSize + 2];
 
         if (r.confidence <= detectionThreshold) {

@@ -18,20 +18,47 @@ path_library=current_path+'/libface_recognition.so'
 #face_recognition = C.cdll.LoadLibrary('/home/anastasiia/Documents/project/web/libface_recognition.so')
 face_recognition = C.cdll.LoadLibrary(path_library)
 
-def recognize_faces(image, path_for_calculate_map, path_for_result_detection_net):
+classesSequence = ['Asyok', 'daryafret', 'Nastya', 'Malinka', 'Ion', 'unknown'] 
+
+def recognize_faces(image, path_for_calculate_map, path_for_result_detection_net, ground_truth):
     (rows, cols, depth) = (image.shape[0], image.shape[1], image.shape[2])
     detection_results = np.zeros(dtype=np.uint8, shape=(rows, cols, depth))
     recognition_results = np.zeros(dtype=np.uint8, shape=(rows, cols, depth))
     path_map = path_for_calculate_map.encode('utf-8') 
     path_res = path_for_result_detection_net.encode('utf-8')
 
-    face_recognition.recognizeFaces(image.ctypes.data_as(C.POINTER(C.c_ubyte)), rows, cols,
-                                    detection_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
-                                    recognition_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
-                                    C.c_char_p(path_map),
-                                    C.c_char_p(path_res)
-                                    )
+    ground_truth_data = None 
+    
+    if ground_truth:
+        ground_truth_data = np.zeros(dtype=np.int32, shape=(24))
+        for key, value in ground_truth.items():
+            if key == 'Unknown':
+                key = 'unknown'
+            index = classesSequence.index(key)
+            index *= 4
+            ground_truth_data[index] = value['x']
+            ground_truth_data[index + 1] = value['y']
+            ground_truth_data[index + 2] = value['width']
+            ground_truth_data[index + 3] = value['height']
+     
+        face_recognition.recognizeFaces(image.ctypes.data_as(C.POINTER(C.c_ubyte)), rows, cols,
+                                        detection_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
+                                        recognition_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
+                                        C.c_char_p(path_map),
+                                        C.c_char_p(path_res),
+                                        ground_truth_data.ctypes.data_as(C.POINTER(C.c_int)))
+   
+    else:
+        face_recognition.recognizeFaces(image.ctypes.data_as(C.POINTER(C.c_ubyte)), rows, cols,
+                                       detection_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
+                                       recognition_results.ctypes.data_as(C.POINTER(C.c_ubyte)),
+                                       C.c_char_p(path_map),
+                                       C.c_char_p(path_res),
+                                       ground_truth_data)
+                                    
 
+    print(ground_truth_data)
+    
     aligned_faces_count = face_recognition.getAlignedFacesCount()
     align_width = np.zeros(dtype=np.uint32, shape=(1, aligned_faces_count))
     align_height = np.zeros(dtype=np.uint32, shape=(1, aligned_faces_count))
@@ -87,17 +114,9 @@ if __name__ == '__main__':
     path_for_calculate_map=current_path+"/mAP-master/input/detection-results/"+fnameWithoutExt+".txt"
     path_for_result_detection_net=current_path+"/mAP-master/data/predicted/"+fnameWithoutExt+".txt"
     
-    detects, recogns, aligns, time  = recognize_faces(image,path_for_calculate_map,path_for_result_detection_net);
+    detects, recogns, aligns, time  = recognize_faces(image,path_for_calculate_map,path_for_result_detection_net, None);
 
-    cv2.imshow('Source image', image)
-    cv2.waitKey()
-    cv2.imshow('Detected faces', detects)
-    cv2.waitKey()
     cv2.imshow('Recognized faces', recogns)
     cv2.waitKey()
-
-    for aligned_image in aligns:
-        cv2.imshow('Aligned image', aligned_image)
-        cv2.waitKey()
 
     print("Total time in ms: " + str(time))

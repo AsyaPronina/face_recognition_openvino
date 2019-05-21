@@ -59,7 +59,7 @@ struct BaseDetection {
 
 struct FaceDetection : BaseDetection {
     struct Result {
-        int label;
+        std::string label;
         float confidence;
         cv::Rect location;
     };
