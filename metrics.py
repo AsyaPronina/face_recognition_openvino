@@ -58,7 +58,7 @@ countAllImg=0
 countErrImg=0
 
 path_to_dataset= 'dataset/'
-name_dir=["Asyok", "daryafret", "Nastya", "Malinka", "All", "Unknown"]
+name_dir=["Asyok", "daryafret", "Nastya", "Malinka", "All"]
 #mame_dir=["Ion"]
 mode="test"
 
